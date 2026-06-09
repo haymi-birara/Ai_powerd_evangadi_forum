@@ -22,6 +22,7 @@ export const authenticateUser = (req, res, next) => {
       id: payload.id,
       firstName: payload.firstName,
       lastName: payload.lastName,
+    
     };
     next();
   } catch (error) {
