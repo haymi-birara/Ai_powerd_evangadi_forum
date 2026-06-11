@@ -12,8 +12,9 @@ export const generateQuestionDraftCoachController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Draft suggestions generated',
+      message: 'Draft suggestions generated.',
       data: result,
+    });
     });
   } catch (error) {
     next(error);
