@@ -64,7 +64,7 @@ export default function MyQuestions() {
             {questions.map(question => (
               <Link
                 key={question.question_hash || question.questionId || question.id}
-                to={`/question/${question.question_hash || question.questionId || question.id}`}
+                to={`/questions/${question.questionHash || question.question_hash || question.questionId || question.id}`}
                 className={styles.questionCard}
               >
                 <div className={styles.questionCard__accent} aria-hidden='true' />

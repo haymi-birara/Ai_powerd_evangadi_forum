@@ -11,8 +11,6 @@ import { User, Clock, AlertCircle, Loader2, PenSquare, BarChart2, BookOpen } fro
 import { motion } from 'framer-motion';
 import styles from './Dashboard.module.css';
 
- const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3777';
-
 export default function Dashboard() {
   const { user } = useAuth();
   const firstName = user?.firstName?.trim() || 'Learner';
@@ -33,13 +31,13 @@ export default function Dashboard() {
     setError(null);
 
     try {
-       const response = await apiClient.get('/api/questions');
-       const extractedQuestions = response.data?.data ?? response.data ?? [];
-           setQuestions(extractedQuestions);
+         const response = await apiClient.get('/api/questions');
+         const extractedQuestions = response.data?.questions ?? response.data?.data ?? [];
+         setQuestions(extractedQuestions);
       const totalQ = extractedQuestions.length;
       const totalR = extractedQuestions.reduce((acc, curr) => acc + (curr.answerCount || 0), 0);
       const unansweredQ = extractedQuestions.filter(q => !q.answerCount || q.answerCount === 0).length;
-      const userQ = extractedQuestions.filter(q => q.authorId === user?.id || q.isUserOwned).length;
+        const userQ = extractedQuestions.filter(q => q.userId === user?.id || q.isUserOwned).length;
 
       setStats({
         totalQuestions: totalQ,
@@ -193,7 +191,7 @@ export default function Dashboard() {
           ) : (
             <div className={styles.questionsWrapper}>
               {questions.map((question, index) => {
-                const isUserOwnedThread = question.authorId === user?.id || question.isUserOwned;
+                const isUserOwnedThread = question.userId === user?.id || question.isUserOwned;
                 return (
                   <motion.div
                     key={question.id || index}
@@ -202,11 +200,11 @@ export default function Dashboard() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.15, delay: Math.min(index * 0.03, 0.25) }}
-                    onClick={() => navigate(`/question/${question.id}`)}
+                    onClick={() => navigate(`/questions/${question.questionHash || question.id}`)}
                      onKeyDown={e => {
                        if (e.key === 'Enter' || e.key === ' ') {
                          e.preventDefault();
-                         navigate(`/question/${question.id}`);
+                         navigate(`/questions/${question.questionHash || question.id}`);
                        }
                      }}
                     className={`${styles.card} ${isUserOwnedThread ? styles.userOwnedAccentBorderCard : ''}`}
@@ -223,7 +221,7 @@ export default function Dashboard() {
                           <div className={styles.authorTag}>
                             <User size={12} />
                             <span className={styles.authorName}>
-                              {question.author?.firstName} {question.author?.lastName}
+                              {question.firstName} {question.lastName}
                             </span>
                           </div>
                           <div className={styles.timeTag}>

@@ -114,7 +114,12 @@ export default function PostQuestion() {
 
   /* ────────────────────────── Success screen ─────────────────── */
   if (successData) {
-    const questionId = successData?.question?.id || successData?.question_id;
+    const questionPayload = successData?.data || successData?.question || successData;
+    const questionId = questionPayload?.id || successData?.question_id;
+    const questionHash =
+      questionPayload?.questionHash ||
+      successData?.questionHash ||
+      successData?.question_hash;
     return (
       <div className={styles.page}>
         <div className={styles.pageHeader}>
@@ -142,11 +147,13 @@ export default function PostQuestion() {
             >
               Back to Dashboard
             </button>
-            {questionId && (
+            {(questionHash || questionId) && (
               <button
                 id="view-question-btn"
                 className={styles.successViewBtn}
-                onClick={() => navigate(`/question/${questionId}`)}
+                onClick={() =>
+                  navigate(`/questions/${questionHash || questionId}`)
+                }
               >
                 View Question
               </button>

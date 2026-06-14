@@ -8,10 +8,12 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import MyQuestions from "./pages/MyQuestions/MyQuestions";
 import Auth from "./pages/Auth/Auth";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Landing from "./pages/Landing/Landing";
-import AskQuestion from "./pages/questions/AskQuestion"; // ← ADD THIS IMPORT
+import PostQuestion from "./pages/PostQuestion/PostQuestion";
+import QuestionDetail from "./pages/QuestionDetail/QuestionDetail";
 
 function App() {
   return (
@@ -36,7 +38,7 @@ function App() {
               path="/questions/ask"
               element={
                 <ProtectedRoute>
-                  <AskQuestion /> {/* ← REPLACE with your component */}
+                  <PostQuestion />
                 </ProtectedRoute>
               }
             />
@@ -49,7 +51,7 @@ function App() {
               }
             />
             <Route
-              path="/question/:id"
+              path="/questions/:questionHash"
               element={
                 <ProtectedRoute>
                   <QuestionDetail />
@@ -75,4 +77,3 @@ function App() {
 }
 
 export default App;
-import React from 'react';

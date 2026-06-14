@@ -45,6 +45,71 @@ async function createQuestion(questionData) {
 }
 
 /**
+ * Fetches questions list with optional filters.
+ * @param {{ search?: string, mine?: boolean }} filters
+ */
+async function getQuestions(filters = {}) {
+  try {
+    const response = await apiClient.get('/api/questions', {
+      params: filters,
+    });
+
+    return response.data?.questions || response.data?.data || [];
+  } catch (error) {
+    throw handleQuestionError(error);
+  }
+}
+
+/**
+ * Fetches a single question and its answers by hash.
+ * @param {string} questionHash
+ */
+async function getSingleQuestion(questionHash) {
+  try {
+    const response = await apiClient.get(`/api/questions/${questionHash}`);
+    return response.data?.question || response.data?.data || null;
+  } catch (error) {
+    throw handleQuestionError(error);
+  }
+}
+
+/**
+ * Posts an answer to an existing question.
+ * @param {number} questionId
+ * @param {string} content
+ */
+async function postAnswer(questionId, content) {
+  try {
+    const response = await apiClient.post('/api/answers', {
+      questionId,
+      content,
+    });
+
+    return response.data?.data || response.data;
+  } catch (error) {
+    throw handleQuestionError(error);
+  }
+}
+
+/**
+ * Calls the AI answer fit endpoint for a question hash.
+ * @param {string} questionHash
+ * @param {string} draftAnswer
+ */
+async function assessAnswerFit(questionHash, draftAnswer) {
+  try {
+    const response = await apiClient.post(
+      `/api/questions/${questionHash}/answer-fit`,
+      { draftAnswer },
+    );
+
+    return response.data?.data || response.data;
+  } catch (error) {
+    throw handleQuestionError(error);
+  }
+}
+
+/**
  * Calls the AI Draft Coach endpoint to get feedback on a question draft.
  * @param {{ title: string, content: string }} draftData
  */
@@ -64,6 +129,10 @@ async function generateQuestionDraftCoach(draftData) {
  * Service for handling question-related API requests.
  */
 export const questionService = {
+  getQuestions,
+  getSingleQuestion,
   createQuestion,
+  postAnswer,
+  assessAnswerFit,
   generateQuestionDraftCoach,
 };
