@@ -34,4 +34,11 @@ export class ServiceUnavailableError extends CustomAPIError {
   }
 }
 
+export class ConflictError extends CustomAPIError {
+  constructor(message) {
+    super(message);
+    this.statusCode = StatusCodes.CONFLICT; // 409
+  }
+}
+
 export default CustomAPIError;

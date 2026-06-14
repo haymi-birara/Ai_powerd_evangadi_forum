@@ -1,0 +1,388 @@
+/* Core Page Layout Wrap */
+.dashboardContainer {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2.5rem 1.5rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* Upper Background Card Box Enclosure */
+.upperDashboardCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 2.25rem;
+}
+
+/* Welcome Area */
+.welcomeBannerContainer {
+  margin-bottom: 2rem;
+}
+
+.orangeLabel {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #ea580c;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.welcomeHeadingTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem 0;
+}
+
+.welcomeSubtitleDescription {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #475569;
+  max-width: 760px;
+  margin: 0;
+}
+
+/* Quick Navigation Links */
+.quickNavigationActionGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .quickNavigationActionGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.actionNavCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.actionNavCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+/* FIXED: Unified Orange Branding Applied Universally */
+.iconCircleWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+  background-color: #fff7ed; 
+  color: #ea580c;
+}
+
+.cardNavContentBlock h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.cardNavContentBlock p {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Analytics Row Panels */
+.analyticsSectionDataGroup {
+  margin-top: 0.5rem;
+}
+
+.metricsMetadataDisclaimer {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin-bottom: 0.875rem;
+}
+
+.metricsLayoutRowGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.875rem;
+}
+
+@media (min-width: 900px) {
+  .metricsLayoutRowGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.metricSingleCardContainer {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metricLabelTitleText {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.metricCounterValueDigit {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+/* Lower Split Panels Layout Matrix */
+.lowerFeedContainerWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0px !important;
+}
+
+/* Box A: Separate Header Box Panel Card */
+.feedHeaderBox {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-bottom: none;
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+  padding: 2rem 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Box B: Separate Content Container Card Box */
+.feedContentContainerBox {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  padding: 0 2.25rem 2.5rem 2.25rem;
+}
+
+.feedTitleAreaGroup h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.feedTitleAreaGroup p {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.newestThreadsPillBadgeTag {
+  background-color: #ea580c;
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+/* Inner Layout Container for Empty Feed State */
+.preciseEmptyDottedStateCardBox {
+  background-color: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 4.5rem 2rem;
+  text-align: center;
+  max-width: 440px;
+  margin: 1.5rem auto 0.5rem auto;
+}
+
+.preciseEmptyDottedStateCardBox p {
+  font-size: 0.9375rem;
+  color: #475569;
+  font-weight: 500;
+  margin: 0;
+}
+
+ .emptyLink {
+   background: none;
+   border: none;
+   padding: 0;
+   color: #ea580c;
+   font-weight: 700;
+   cursor: pointer;
+   text-decoration: underline;
+ }
+/* Active List Matrix Rows Layout styling rules */
+.questionsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: #cbd5e1;
+}
+
+.userOwnedAccentBorderCard {
+  border-left: 4px solid #ea580c !important;
+}
+
+.cardLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .cardLayout {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.mainInfo {
+  flex: 1 1 0%;
+  min-width: 0%;
+}
+
+.titleRowFlexGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.cardTitle {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.yoursAccentPillBadgeTag {
+  background-color: #ffedd5;
+  color: #ea580c;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.cardContent {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #475569;
+  margin: 0 0 0.875rem 0;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.authorTag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+.timeTag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.statBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+@media (min-width: 768px) {
+  .statBadge {
+    flex-direction: column;
+    justify-content: center;
+    min-width: 64px;
+    text-align: center;
+    gap: 0;
+  }
+}
+
+.statNum {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+}
+
+/* Spinner Framework Configurations */
+.loadingBox, .errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.errorIcon {
+   color: #ef4444;
+   margin-bottom: 0.75rem;
+ }
+ .authorName {
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   max-width: 14rem;
+ }
+.spinner {
+  color: #ea580c;
+  animation: rotateSpin 0.8s linear infinite;
+  margin-bottom: 0.75rem;
+}
+
+@keyframes rotateSpin {
+  to { transform: rotate(360deg); }
+}

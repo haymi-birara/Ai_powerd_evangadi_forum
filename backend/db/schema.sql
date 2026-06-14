@@ -80,6 +80,9 @@ CREATE TABLE `answers` (
     FOREIGN KEY (`question_id`) REFERENCES `questions`(`question_id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
     
+    -- Enforces one answer per user per question atomically (prevents race conditions)
+    UNIQUE KEY `uniq_answers_question_user` (`question_id`, `user_id`),
+
     INDEX `idx_answers_question_id` (`question_id`),
     INDEX `idx_answers_user_id` (`user_id`),
     INDEX `idx_answers_created_at` (`created_at`)

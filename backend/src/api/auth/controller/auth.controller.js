@@ -12,7 +12,6 @@ import { registerService, loginService } from '../service/auth.service.js';
 export const registerController = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-
     const newUser = await registerService({
       firstName,
       lastName,

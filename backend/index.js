@@ -1,11 +1,23 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from 'express';
 import { db } from './db/config.js';
 import { mainRouter } from './src/api/routes.js';
 import { errorHandler } from './src/middleware/error-handler.js';
 import cors from 'cors';
-
 const app = express();
 const port = process.env.PORT || 3777;
+
+const validateEnv = () => {
+  const required = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD'];
+  for (const env of required) {
+    if (!process.env[env]) {
+      throw new Error(`Missing required environment variable: ${env}`);
+    }
+  }
+};
+
+validateEnv();
 
 // Middleware
 app.use(cors());
@@ -18,7 +30,6 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api', mainRouter);
-
 app.use(errorHandler);
 
 // Start server
@@ -26,7 +37,6 @@ const startServer = async () => {
   try {
     // Test database connection
     const connection = await db.getConnection();
-
     console.log('Database connection established successfully.');
     connection.release();
 
