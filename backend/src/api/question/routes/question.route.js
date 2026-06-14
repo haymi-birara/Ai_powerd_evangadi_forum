@@ -1,20 +1,38 @@
-import express from 'express';
-import { getSimilarQuestionsController } from '../controller/question.controller.js';
-import { authenticateUser } from '../../../middleware/authentication.js';
-import { getSimilarQuestionsValidation } from '../validations/question.validation.js';
+import express from "express";
+import { authenticateUser } from "../../../middleware/authentication.js";
+
+import {
+  getQuestionsController,
+  getSingleQuestionController,
+} from "../controller/question.controller.js";
+
+import {
+  getQuestionsValidation,
+  getSingleQuestionValidation,
+} from "../validations/question.validation.js";
 
 const router = express.Router();
 
 /**
- * @route   GET /api/questions/:questionHash/similar
- * @desc    Get questions similar to the given question hash
- * @access  Protected
+ * GET /api/questions
+ * List questions
  */
 router.get(
-  '/:questionHash/similar',
-  // authenticateUser,
-  getSimilarQuestionsValidation,
-  getSimilarQuestionsController,
+  "/",
+  authenticateUser,
+  getQuestionsValidation,
+  getQuestionsController,
+);
+
+/**
+ * GET /api/questions/:questionHash
+ * Get single question with answers
+ */
+router.get(
+  "/:questionHash",
+  authenticateUser,
+  getSingleQuestionValidation,
+  getSingleQuestionController,
 );
 
 export default router;

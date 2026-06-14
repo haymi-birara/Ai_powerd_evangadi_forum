@@ -1,26 +1,32 @@
-import { param,query } from "express-validator";
+import { param, query } from "express-validator";
 import { validationErrorHandler } from "../../../middleware/validation-handler.js";
 
+export const getQuestionsValidation = [
+  query("search")
+    .optional()
+    .isString()
+    .withMessage("Search must be a string")
+    .trim(),
 
-/**
- * Validation rules for GET /api/questions/:questionHash/similar
- *
- * - questionHash: must be a 16-character hexadecimal string
- */
-export const getSimilarQuestionsValidation = [
+  query("mine")
+    .optional()
+    .isBoolean()
+    .withMessage("Mine must be a boolean")
+    .toBoolean(),
+
+  validationErrorHandler,
+];
+
+export const getSingleQuestionValidation = [
   param("questionHash")
-    .matches(/^[a-fA-F0-9]{16}$/)
-    .withMessage("Invalid question hash format"),
-
-  query("k")
-    .optional()
-    .isInt({ min: 1, max: 20 })
-    .withMessage("k must be between 1 and 20"),
-
-  query("threshold")
-    .optional()
-    .isFloat({ min: 0, max: 1 })
-    .withMessage("threshold must be between 0 and 1"),
+    .notEmpty()
+    .withMessage("Question hash is required")
+    .bail()
+    .isString()
+    .withMessage("Question hash must be a string")
+    .bail()
+    .matches(/^[a-f0-9]{16}$/)
+    .withMessage("Question hash must be a 16-character lowercase hex string"),
 
   validationErrorHandler,
 ];

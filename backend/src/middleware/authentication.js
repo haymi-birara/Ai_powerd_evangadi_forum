@@ -15,7 +15,12 @@ export const authenticateUser = (req, res, next) => {
     }
     const token = authHeader.split(' ')[1];
     const payload = jwt.verify(token, JWT_SECRET);
-    req.user = { id: payload.id, firstName: payload.firstName, lastName: payload.lastName };
+    req.user = {
+      id: payload.id,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+    
+    };
     next();
   } catch (error) {
     next(error);
