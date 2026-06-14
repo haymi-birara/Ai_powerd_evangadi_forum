@@ -1,5 +1,6 @@
-import express from 'express';
-import authRoutes from './auth/routes/auth.routes.js';
+import express from "express";
+import authRoutes from "./auth/routes/auth.routes.js";
+import questionRoutes from "./question/routes/question.routes.js";
 
 import questionRoute from './question/routes/question.routes.js';
 
