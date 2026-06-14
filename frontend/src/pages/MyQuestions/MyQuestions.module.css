@@ -1,0 +1,127 @@
+.myQuestions {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.heroCard,
+.contentCard {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-2xl);
+}
+
+.heroCard {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.heroCard__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+  font-weight: var(--font-semibold);
+}
+
+.heroCard__title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.heroCard__description {
+  color: var(--text-secondary);
+  max-width: 42rem;
+}
+
+.heroCard__button {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  border-radius: var(--radius-lg);
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  text-decoration: none;
+  font-weight: var(--font-semibold);
+  transition: background-color var(--transition-fast);
+}
+
+.heroCard__button:hover,
+.heroCard__button:focus-visible {
+  background-color: var(--primary-hover);
+}
+
+.questionList {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.questionCard {
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background-color: var(--surface);
+}
+
+.questionCard:hover,
+.questionCard:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.questionCard__accent {
+  width: 0.5rem;
+  background-color: var(--primary);
+}
+
+.questionCard__body {
+  padding: var(--spacing-lg);
+  flex: 1;
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+.questionCard__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.questionCard__title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.questionCard__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: var(--font-semibold);
+}
+
+.questionCard__meta {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.questionCard__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  color: var(--text-placeholder);
+  font-size: 0.875rem;
+}

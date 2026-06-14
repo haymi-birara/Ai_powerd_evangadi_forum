@@ -44,7 +44,7 @@ function App() {
               path="/my-questions"
               element={
                 <ProtectedRoute>
-                  <h1>My Questions Page</h1>
+                  <MyQuestions />
                 </ProtectedRoute>
               }
             />
