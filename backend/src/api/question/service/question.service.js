@@ -5,7 +5,7 @@ import {
   generateQuestionEmbedding,
   normalizeQuestionText,
   storeQuestionVector,
-} from "../Service/vector.service.js";
+} from "./vector.service.js";
 
 const generateQuestionHash = () => {
   return crypto.randomBytes(8).toString("hex");

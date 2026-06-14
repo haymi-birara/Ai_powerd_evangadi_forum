@@ -5,7 +5,7 @@ import {
   draftCoachValidation,
   getQuestionsValidation,
   getSingleQuestionValidation,
-} from "../Validations/question.validation.js";
+} from "../validations/question.validation.js";
 import {
   createQuestionController,
   generateQuestionDraftCoachController,

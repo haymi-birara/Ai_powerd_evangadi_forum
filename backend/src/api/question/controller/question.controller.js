@@ -4,7 +4,7 @@ import {
   getQuestionsService,
   getSingleQuestionService,
 } from "../service/question.service.js";
-import { generateQuestionDraftCoachService } from "../Service/geminiTextCoach.service.js";
+import { generateQuestionDraftCoachService } from "../service/geminiTextCoach.service.js";
 
 /**
  * Handles listing questions with optional search filtering. Max 100 records.
