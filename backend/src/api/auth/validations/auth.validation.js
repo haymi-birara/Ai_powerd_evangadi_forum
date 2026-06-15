@@ -42,3 +42,28 @@ export const loginValidation = [
 
   validationErrorHandler,
 ];
+
+export const confirmEmailValidation = [
+  body('token').notEmpty().withMessage('Confirmation token is required'),
+  validationErrorHandler,
+];
+
+export const forgotPasswordValidation = [
+  body('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('A valid email address is required')
+    .normalizeEmail(),
+  validationErrorHandler,
+];
+
+export const resetPasswordValidation = [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('newPassword')
+    .notEmpty()
+    .withMessage('New password is required')
+    .isLength({ min: 6 })
+    .withMessage('New password must be at least 6 characters long'),
+  validationErrorHandler,
+];

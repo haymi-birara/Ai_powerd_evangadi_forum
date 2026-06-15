@@ -9,11 +9,6 @@ import {
 
 /**
  * Handles user registration requests.
- *
- * @param {import('express').Request} req - The Express request object.
- * @param {import('express').Response} res - The Express response object.
- * @param {import('express').NextFunction} next - The Express next function.
- * @returns {Promise<void>}
  */
 export const registerController = async (req, res, next) => {
   try {
@@ -30,7 +25,7 @@ export const registerController = async (req, res, next) => {
       message: registerResult.confirmationMessage,
       welcomeMessage: registerResult.welcomeMessage,
       user: registerResult.user,
-      confirmationToken: registerResult.confirmationToken,
+      confirmationUrl: registerResult.confirmationUrl,
     });
   } catch (error) {
     next(error);
@@ -39,11 +34,6 @@ export const registerController = async (req, res, next) => {
 
 /**
  * Handles user login requests.
- *
- * @param {import('express').Request} req - The Express request object.
- * @param {import('express').Response} res - The Express response object.
- * @param {import('express').NextFunction} next - The Express next function.
- * @returns {Promise<void>}
  */
 export const loginController = async (req, res, next) => {
   try {
@@ -80,13 +70,12 @@ export const confirmEmailController = async (req, res, next) => {
 export const forgotPasswordController = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const result = await forgotPasswordService({ email });
+    await forgotPasswordService({ email });
 
     res.status(StatusCodes.OK).json({
       success: true,
       message:
-        'If an account exists for this email, password recovery instructions were generated.',
-      resetToken: result.resetToken,
+        'If an account exists for this email, password recovery instructions were sent.',
     });
   } catch (error) {
     next(error);
@@ -100,7 +89,8 @@ export const resetPasswordController = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'Password reset successful. You can now sign in with your new password.',
+      message:
+        'Password reset successful. You can now sign in with your new password.',
       data: result,
     });
   } catch (error) {
