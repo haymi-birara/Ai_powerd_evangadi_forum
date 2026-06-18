@@ -97,7 +97,7 @@ export const createAnswerService = async ({ questionId, content, userId }) => {
     content: row.content,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
-    author: {
+    user: {
       id: row.authorId,
       firstName: row.authorFirstName,
       lastName: row.authorLastName,
