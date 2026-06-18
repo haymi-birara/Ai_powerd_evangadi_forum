@@ -183,8 +183,8 @@ export const getSingleQuestionService = async ({ questionHash }) => {
       a.created_at AS createdAt,
       a.updated_at AS updatedAt,
       au.user_id AS userId,
-      au.first_name AS firstName,
-      au.last_name AS lastName
+      au.first_name AS userFirstName,
+      au.last_name AS userLastName
     FROM answers a
     JOIN users au
       ON au.user_id = a.user_id
@@ -194,9 +194,20 @@ export const getSingleQuestionService = async ({ questionHash }) => {
   `;
 
   const answerRows = await safeExecute(answersSql, [question.id]);
+  const answers = answerRows.map(row => ({
+    id: row.id,
+    content: row.content,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    user: {
+      id: row.userId,
+      firstName: row.userFirstName,
+      lastName: row.userLastName,
+    },
+  }));
 
   return {
     ...question,
-    answers: answerRows,
+    answers,
   };
 };

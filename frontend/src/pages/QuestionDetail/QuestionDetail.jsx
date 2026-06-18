@@ -212,11 +212,12 @@ export default function QuestionDetail() {
                 <article key={answer.id} className={styles.answerCard}>
                   <div className={styles.answerHeader}>
                     <div className={styles.answerAvatar}>
-                      {answer.author?.firstName?.[0] || 'U'}
+                      {(answer.user?.firstName || answer.author?.firstName)?.[0] || 'U'}
                     </div>
                     <div>
                       <p className={styles.answerAuthor}>
-                        {answer.author?.firstName} {answer.author?.lastName}
+                        {answer.user?.firstName || answer.author?.firstName}{' '}
+                        {answer.user?.lastName || answer.author?.lastName}
                       </p>
                       <p className={styles.answerDate}>
                         {answer.createdAt
