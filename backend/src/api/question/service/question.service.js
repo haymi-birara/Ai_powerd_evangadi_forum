@@ -442,9 +442,12 @@ export const searchQuestionsSemanticService = async ({ query, k, threshold }) =>
   const searchThreshold = Math.max(0, Math.min(1, toNumberOrFallback(threshold, 0.75)));
 
   const normalizedText = normalizeQuestionText({ title: normalizedQuery });
-  const { embedding: queryEmbedding } = await generateQuestionEmbedding(normalizedText, {
-    taskType: "RETRIEVAL_QUERY",
-  });
+
+  // Run embedding generation and AI answer in parallel — both use Gemini but are independent.
+  const [{ embedding: queryEmbedding }, aiAnswer] = await Promise.all([
+    generateQuestionEmbedding(normalizedText, { taskType: "RETRIEVAL_QUERY" }),
+    generateAIAnswer(normalizedQuery),
+  ]);
 
   const vectorsSql = `
     SELECT qv.question_id AS questionId, qv.embedding
@@ -455,19 +458,12 @@ export const searchQuestionsSemanticService = async ({ query, k, threshold }) =>
   const vectorRows = await safeExecute(vectorsSql, []);
 
   if (vectorRows.length === 0) {
-    const [fallbackData, aiAnswer] = await Promise.all([
-      searchQuestionsLexicalFallback({ query: normalizedQuery, limit }),
-      generateAIAnswer(normalizedQuery),
-    ]);
+    const fallbackData = await searchQuestionsLexicalFallback({ query: normalizedQuery, limit });
 
     return {
       data: fallbackData.map(toQuestionWithAuthor),
       aiAnswer,
-      meta: {
-        total: fallbackData.length,
-        k: limit,
-        threshold: searchThreshold,
-      },
+      meta: { total: fallbackData.length, k: limit, threshold: searchThreshold },
     };
   }
 
@@ -475,14 +471,8 @@ export const searchQuestionsSemanticService = async ({ query, k, threshold }) =>
 
   for (const row of vectorRows) {
     const vector = parseEmbedding(row.embedding);
-
-    if (!Array.isArray(vector) || vector.length === 0) {
-      continue;
-    }
-
-    const score = cosineSimilarity(queryEmbedding, vector);
-
-    scored.push({ questionId: row.questionId, score });
+    if (!Array.isArray(vector) || vector.length === 0) continue;
+    scored.push({ questionId: row.questionId, score: cosineSimilarity(queryEmbedding, vector) });
   }
 
   const thresholdMatches = scored.filter((item) => item.score >= searchThreshold);
@@ -492,19 +482,12 @@ export const searchQuestionsSemanticService = async ({ query, k, threshold }) =>
   const top = ranked.slice(0, limit);
 
   if (top.length === 0) {
-    const [fallbackData, aiAnswer] = await Promise.all([
-      searchQuestionsLexicalFallback({ query: normalizedQuery, limit }),
-      generateAIAnswer(normalizedQuery),
-    ]);
+    const fallbackData = await searchQuestionsLexicalFallback({ query: normalizedQuery, limit });
 
     return {
       data: fallbackData.map(toQuestionWithAuthor),
       aiAnswer,
-      meta: {
-        total: fallbackData.length,
-        k: limit,
-        threshold: searchThreshold,
-      },
+      meta: { total: fallbackData.length, k: limit, threshold: searchThreshold },
     };
   }
 
@@ -515,26 +498,15 @@ export const searchQuestionsSemanticService = async ({ query, k, threshold }) =>
   const data = top
     .map((item) => {
       const question = detailsById.get(item.questionId);
-
-      if (!question) {
-        return null;
-      }
-
-      return {
-        ...toQuestionWithAuthor(question),
-        score: item.score,
-      };
+      if (!question) return null;
+      return { ...toQuestionWithAuthor(question), score: item.score };
     })
     .filter(Boolean);
 
   return {
     data,
-    aiAnswer: null,
-    meta: {
-      total: data.length,
-      k: limit,
-      threshold: searchThreshold,
-    },
+    aiAnswer,
+    meta: { total: data.length, k: limit, threshold: searchThreshold },
   };
 };
 
