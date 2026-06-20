@@ -485,20 +485,17 @@ export const searchQuestionsSemanticService = async ({ query, k, threshold }) =>
   }
 
   const thresholdMatches = scored.filter((item) => item.score >= searchThreshold);
-  const ranked = (thresholdMatches.length > 0 ? thresholdMatches : scored).sort(
-    (a, b) => b.score - a.score,
-  );
-  const top = ranked.slice(0, limit);
-
-  if (top.length === 0) {
-    const fallbackData = await searchQuestionsLexicalFallback({ query: normalizedQuery, limit });
-
+  // Strict threshold: if nothing passes, return empty so the AI answer card
+  // explains why — never surface low-score results as "matches".
+  if (thresholdMatches.length === 0) {
     return {
-      data: fallbackData.map(toQuestionWithAuthor),
+      data: [],
       aiAnswer,
-      meta: { total: fallbackData.length, k: limit, threshold: searchThreshold },
+      meta: { total: 0, k: limit, threshold: searchThreshold },
     };
   }
+
+  const top = thresholdMatches.sort((a, b) => b.score - a.score).slice(0, limit);
 
   const ids = top.map((item) => item.questionId);
   const detailRows = await fetchQuestionDetailsByIds(ids);

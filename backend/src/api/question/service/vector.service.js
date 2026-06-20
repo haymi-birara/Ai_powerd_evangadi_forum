@@ -98,12 +98,17 @@ export const generateQuestionEmbedding = async (sourceText, options = {}) => {
 
 export const generateAIAnswer = async (query) => {
   const prompt = [
-    "You are a helpful programming forum assistant.",
-    "A user searched for related questions but none were found.",
-    "Answer the following question concisely and clearly in 2-4 sentences.",
-    "Focus on accuracy. Do not make up facts.",
+    "You are an assistant for Evangadi Forum, a Q&A community focused exclusively on software development, programming, and technology.",
     "",
-    `Question: ${query}`,
+    "A user submitted this search query:",
+    `"${query}"`,
+    "",
+    "First, decide if this query is related to software development, programming, or technology.",
+    "",
+    "If it is NOT related, respond with exactly this (fill in the blank):",
+    '"This question is outside the scope of Evangadi Forum. Our community focuses on software development, programming, and technology topics. Try asking something related to coding, frameworks, databases, or dev tools."',
+    "",
+    "If it IS related, answer it concisely in 2-4 sentences. Be accurate. Do not make up facts.",
   ].join("\n");
 
   try {
