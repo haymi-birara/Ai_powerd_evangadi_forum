@@ -166,6 +166,42 @@ async function generateQuestionDraftCoach(draftData) {
 }
 
 /**
+ * Performs AI semantic search on questions using vector similarity.
+ * Returns { data: Question[], aiAnswer: string | null }
+ * @param {string} query
+ * @param {{ k?: number, threshold?: number }} options
+ */
+async function searchQuestionsSemantic(query, { k = 5, threshold = 0.75 } = {}) {
+  try {
+    const response = await apiClient.get('/api/questions/search', {
+      params: { query, k, threshold },
+    });
+    return {
+      data: response.data?.data || [],
+      aiAnswer: response.data?.aiAnswer || null,
+    };
+  } catch (error) {
+    throw handleQuestionError(error);
+  }
+}
+
+/**
+ * Fetches questions similar to a given question using stored vector similarity.
+ * @param {string} questionHash
+ * @param {{ k?: number, threshold?: number }} options
+ */
+async function getSimilarQuestions(questionHash, { k = 5, threshold = 0.75 } = {}) {
+  try {
+    const response = await apiClient.get(`/api/questions/${questionHash}/similar`, {
+      params: { k, threshold },
+    });
+    return response.data?.data || [];
+  } catch (error) {
+    return []; // non-fatal: sidebar just stays empty
+  }
+}
+
+/**
  * Service for handling question-related API requests.
  */
 export const questionService = {
@@ -177,4 +213,6 @@ export const questionService = {
   postAnswer,
   assessAnswerFit,
   generateQuestionDraftCoach,
+  searchQuestionsSemantic,
+  getSimilarQuestions,
 };

@@ -97,7 +97,11 @@ export const createQuestionWithVectorService = async ({ userId, title, content }
       embedding,
       status: "ready",
     });
-  } catch {
+  } catch (err) {
+    console.warn(
+      `[vector] Embedding failed for question ${questionId} — stored with status=failed:`,
+      err.message,
+    );
     await storeQuestionVector({
       questionId,
       sourceText,

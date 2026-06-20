@@ -7,6 +7,7 @@ import {
   getSingleQuestionService,
 } from "../service/question.service.js";
 import { generateQuestionDraftCoachService } from "../service/geminiTextCoach.service.js";
+import { searchQuestionsSemanticService, getSimilarQuestionsService } from "../service/vector.service.js";
 
 /**
  * Handles listing questions with optional search filtering. Max 100 records.
@@ -71,6 +72,45 @@ export const createQuestionController = async (req, res, next) => {
       success: true,
       message: "Question created successfully",
       data: result.question,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchQuestionsSemanticController = async (req, res, next) => {
+  try {
+    const query = req.query.query;
+    const k = req.query.k ? Number(req.query.k) : 5;
+    const threshold = req.query.threshold ? Number(req.query.threshold) : 0.75;
+
+    const { data, aiAnswer } = await searchQuestionsSemanticService({ query, k, threshold });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Semantic search completed successfully",
+      data,
+      aiAnswer,
+      meta: { total: data.length, k, threshold, query, questionHash: null },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSimilarQuestionsController = async (req, res, next) => {
+  try {
+    const { questionHash } = req.params;
+    const k = req.query.k ? Number(req.query.k) : 5;
+    const threshold = req.query.threshold ? Number(req.query.threshold) : 0.75;
+
+    const results = await getSimilarQuestionsService({ questionHash, k, threshold });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Similar questions fetched successfully",
+      data: results,
+      meta: { total: results.length, k, threshold, questionHash },
     });
   } catch (error) {
     next(error);

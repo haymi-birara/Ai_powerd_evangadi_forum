@@ -299,6 +299,21 @@
   color: var(--text-primary);
 }
 
+.auth__inlineLink {
+  border: none;
+  background: none;
+  color: var(--primary);
+  font-size: var(--text-sm);
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.auth__inlineLink:hover {
+  color: var(--primary-container);
+  text-decoration: underline;
+}
+
 .auth__labelLink {
   font-size: var(--text-sm);
   color: var(--primary);
@@ -329,6 +344,22 @@
 
 .auth__input:hover {
   border-color: var(--border-hover);
+}
+
+.auth__tokenInput {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.auth__confirmBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.auth__inlineActions {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .auth__passwordWrap {
