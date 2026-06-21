@@ -2,7 +2,9 @@ import fs from "fs/promises";
 import { extractTextFromPDF } from "../../../utils/pdfParser.js";
 import { chunkText } from "../../../utils/chunk.js";
 import { safeExecute } from "../../../../db/config.js";
-import { getDocumentEmbedding } from "../../../utils/ragGemini.js"; 
+import { getDocumentEmbedding, getQueryEmbedding, answerFromRagChunksService } from "../../../utils/ragGemini.js";
+import { BadRequestError, NotFoundError } from "../../../utils/errors/index.js";
+
 
 
 export const createDocumentFromUploadService= async (file, userId)=>{
@@ -110,3 +112,118 @@ export const createDocumentFromUploadService= async (file, userId)=>{
   }
 
 }
+
+const dotProduct = (a, b) => {
+  let sum = 0;
+  const limit = Math.min(a.length, b.length);
+  for (let i = 0; i < limit; i++) {
+    sum += a[i] * b[i];
+  }
+  return sum;
+};
+
+const magnitude = (arr) => Math.sqrt(arr.reduce((sum, val) => sum + val * val, 0));
+
+const cosineSimilarity = (a, b) => {
+  const magA = magnitude(a);
+  const magB = magnitude(b);
+  if (magA === 0 || magB === 0) return 0;
+  return dotProduct(a, b) / (magA * magB);
+};
+
+const parseEmbedding = (rawEmbedding) => {
+  if (Array.isArray(rawEmbedding)) {
+    return rawEmbedding;
+  }
+  if (Buffer.isBuffer(rawEmbedding)) {
+    try {
+      return JSON.parse(rawEmbedding.toString("utf-8"));
+    } catch {
+      return null;
+    }
+  }
+  if (typeof rawEmbedding === "string") {
+    try {
+      return JSON.parse(rawEmbedding);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const queryDocumentService = async ({ documentId, query, userId }) => {
+  if (!userId) {
+    throw new BadRequestError("Authenticated user ID is missing.");
+  }
+
+  // 1. Verify document ownership and readiness
+  const documentRows = await safeExecute(
+    `SELECT * FROM documents WHERE document_id = ? AND user_id = ?`,
+    [documentId, userId]
+  );
+  if (documentRows.length === 0) {
+    throw new NotFoundError("Document not found");
+  }
+
+  const document = documentRows[0];
+  if (document.status !== "ready") {
+    throw new BadRequestError("Document is not ready for querying");
+  }
+
+  // 2. Embed the query
+  const queryEmbedding = await getQueryEmbedding(query);
+
+  // 3. Fetch all chunk vectors for this document
+  const chunkRows = await safeExecute(
+    `SELECT dc.chunk_id AS chunkId, dc.chunk_index AS chunkIndex, dc.content, dcv.embedding
+     FROM document_chunks dc
+     INNER JOIN document_chunk_vectors dcv ON dc.chunk_id = dcv.chunk_id
+     WHERE dc.document_id = ? AND dcv.status = 'ready'`,
+    [documentId]
+  );
+
+  if (chunkRows.length === 0) {
+    throw new BadRequestError("No processed chunks found for this document.");
+  }
+
+  // 4. Calculate similarities and score
+  const scored = [];
+  for (const row of chunkRows) {
+    const vector = parseEmbedding(row.embedding);
+    if (!Array.isArray(vector) || vector.length === 0) {
+      continue;
+    }
+    const score = cosineSimilarity(queryEmbedding, vector);
+    scored.push({
+      chunkId: row.chunkId,
+      chunkIndex: row.chunkIndex,
+      content: row.content,
+      score,
+    });
+  }
+
+  // 5. Filter by threshold (optional, using process.env.RAG_SEARCH_THRESHOLD or fallback 0.45)
+  const searchThreshold = process.env.RAG_SEARCH_THRESHOLD
+    ? parseFloat(process.env.RAG_SEARCH_THRESHOLD)
+    : 0.45;
+
+  // Filter matches. If none meet the threshold, we fall back to all sorted matches.
+  const thresholdMatches = scored.filter((item) => item.score >= searchThreshold);
+  const ranked = (thresholdMatches.length > 0 ? thresholdMatches : scored).sort(
+    (a, b) => b.score - a.score
+  );
+
+  // Take top k chunks
+  const limit = process.env.RAG_SEARCH_K ? parseInt(process.env.RAG_SEARCH_K, 10) : 5;
+  const topChunks = ranked.slice(0, limit);
+
+  if (topChunks.length === 0) {
+    throw new BadRequestError("Could not retrieve relevant content to answer the query.");
+  }
+
+  // 6. Generate answer using Gemini
+  const responseData = await answerFromRagChunksService(query, topChunks);
+
+  return responseData;
+};
