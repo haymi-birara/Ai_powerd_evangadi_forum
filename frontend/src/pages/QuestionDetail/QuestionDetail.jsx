@@ -43,14 +43,14 @@ export default function QuestionDetail() {
           questionService.getSingleQuestion(questionHash),
           questionService.getSimilarQuestions(questionHash, {
             k: 5,
-            threshold: 0.72,
+            threshold: 0.75,
           }),
         ]);
 
         if (!isMounted) return;
 
         setQuestion(questionData);
-        setRelatedQuestions(similarResult?.data || []);
+        setRelatedQuestions(similarResult || []);
       } catch (err) {
         if (!isMounted) return;
         setError(err.message || 'Failed to load question details.');
@@ -323,7 +323,7 @@ export default function QuestionDetail() {
               >
                 <p className={styles.relatedTitle}>{item.title}</p>
                 <div className={styles.relatedMeta}>
-                  <span>{item.firstName} {item.lastName}</span>
+                  <span>{item.author?.firstName || item.firstName} {item.author?.lastName || item.lastName}</span>
                   <span>
                     {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''}
                   </span>

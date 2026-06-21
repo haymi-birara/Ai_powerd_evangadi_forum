@@ -4,39 +4,31 @@ import {
   createQuestionValidation,
   draftCoachValidation,
   getQuestionsValidation,
-  getSimilarQuestionsValidation,
   searchQuestionsValidation,
+  getSimilarQuestionsValidation,
   getSingleQuestionValidation,
-  similarQuestionsValidation,
 } from "../validations/question.validation.js";
 import {
   createQuestionController,
   generateQuestionDraftCoachController,
-  getSimilarQuestionsController,
   getQuestionsController,
   searchQuestionsSemanticController,
+  getSimilarQuestionsController,
   getSingleQuestionController,
 } from "../controller/question.controller.js";
+
 const questionRoute = express.Router();
+
 questionRoute.get("/", authenticateUser, getQuestionsValidation, getQuestionsController);
+
 questionRoute.post("/", authenticateUser, createQuestionValidation, createQuestionController);
+
 questionRoute.post("/draft-coach", authenticateUser, draftCoachValidation, generateQuestionDraftCoachController);
-questionRoute.get(
-  "/search",
-  authenticateUser,
-  searchQuestionsValidation,
-  searchQuestionsSemanticController,
-);
-questionRoute.get(
-  "/:questionHash/similar",
-  authenticateUser,
-  getSimilarQuestionsValidation,
-  getSimilarQuestionsController,
-);
-questionRoute.get(
-  "/:questionHash",
-  authenticateUser,
-  getSingleQuestionValidation,
-  getSingleQuestionController,
-);
+
+questionRoute.get("/search", authenticateUser, searchQuestionsValidation, searchQuestionsSemanticController);
+
+questionRoute.get("/:questionHash/similar", authenticateUser, getSimilarQuestionsValidation, getSimilarQuestionsController);
+
+questionRoute.get("/:questionHash", authenticateUser, getSingleQuestionValidation, getSingleQuestionController);
+
 export default questionRoute;

@@ -33,6 +33,7 @@ const verifyFlowToken = token => {
   }
 };
 
+// Called once at startup (from initAuthTables) — not per-request.
 const ensureEmailVerificationTable = async () => {
   await safeExecute(
     `
@@ -47,6 +48,11 @@ const ensureEmailVerificationTable = async () => {
     `,
     [],
   );
+};
+
+// Export so index.js can call this once after DB connects.
+export const initAuthTables = async () => {
+  await ensureEmailVerificationTable();
 };
 
 /**
@@ -78,7 +84,6 @@ export const registerService = async ({
   email,
   password,
 }) => {
-  await ensureEmailVerificationTable();
 
   const normalizedEmail = normalizeEmail(email);
   const userExists = await checkUserExists(normalizedEmail);
@@ -126,7 +131,9 @@ export const registerService = async ({
   );
 
   const confirmationUrl = `${process.env.FRONTEND_URL || 'http://localhost:5001'}/auth?confirmToken=${encodeURIComponent(confirmationToken)}`;
-  console.info('Email confirmation link (development):', confirmationUrl);
+  if (process.env.NODE_ENV !== 'production') {
+    console.info('[dev] Email confirmation link:', confirmationUrl);
+  }
 
   let confirmationEmailSent = false;
   let confirmationEmailError = '';
@@ -181,7 +188,6 @@ export const registerService = async ({
  * @throws {UnauthenticatedError} If authentication fails.
  */
 export const loginService = async ({ email, password }) => {
-  await ensureEmailVerificationTable();
 
   const normalizedEmail = normalizeEmail(email);
   const sql =
@@ -234,7 +240,6 @@ export const loginService = async ({ email, password }) => {
 };
 
 export const confirmEmailService = async ({ token }) => {
-  await ensureEmailVerificationTable();
 
   const decoded = verifyFlowToken(token);
 
@@ -292,7 +297,9 @@ export const forgotPasswordService = async ({ email }) => {
   );
 
   const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5001'}/auth?resetToken=${encodeURIComponent(resetToken)}`;
-  console.info('Password reset link (development):', resetUrl);
+  if (process.env.NODE_ENV !== 'production') {
+    console.info('[dev] Password reset link:', resetUrl);
+  }
 
   // Send reset email (no-op if EMAIL_HOST not configured)
   await sendPasswordResetEmail({

@@ -22,7 +22,23 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- 2. Questions Table
+-- 2. User Email Verifications Table
+-- Tracks whether a user has confirmed their email address.
+-- One row per user; created at registration, updated on confirmation.
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `user_email_verifications`;
+CREATE TABLE `user_email_verifications` (
+    `user_id` INT PRIMARY KEY,
+    `is_verified` TINYINT(1) NOT NULL DEFAULT 0,
+    `verified_at` TIMESTAMP NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
+    INDEX `idx_user_email_verifications_verified` (`is_verified`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
+-- 4. Questions Table
 -- Stores the main questions posted by users.
 -- Supports full-text search on title and content for exact match search.
 -- -----------------------------------------------------------------------------
@@ -61,7 +77,8 @@ CREATE TABLE `question_vectors` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (`question_id`) REFERENCES `questions`(`question_id`) ON DELETE CASCADE,
-    UNIQUE KEY `uniq_question_vectors_question_id` (`question_id`)
+    UNIQUE KEY `uniq_question_vectors_question_id` (`question_id`),
+    INDEX `idx_qv_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
