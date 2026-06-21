@@ -1,6 +1,34 @@
 import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 import { safeExecute } from "../../../../db/config.js";
 import { NotFoundError } from "../../../utils/errors/index.js";
+
+// Backend root directory (.../backend), used to resolve relative storage paths.
+// service dir = .../backend/src/api/rag/service → four levels up is backend/.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const BACKEND_ROOT = path.resolve(__dirname, "../../../../");
+
+// Removes the PDF from disk. A missing file (ENOENT) is treated as success
+// since the end state — file gone — is what we want. Other errors (e.g.
+// permission denied) are surfaced so we don't drop the DB record while the
+// file lingers on disk.
+const removeFileFromDisk = async (storagePath) => {
+  if (!storagePath) {
+    return;
+  }
+  const absolutePath = path.isAbsolute(storagePath)
+    ? storagePath
+    : path.resolve(BACKEND_ROOT, storagePath);
+  try {
+    await fs.unlink(absolutePath);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return; // Already gone — nothing to do.
+    }
+    throw error;
+  }
+};
 
 export const deleteDocumentService = async ({ documentId, userId }) => {
   // Look up the document first so we can return a clean 404 when the id
@@ -30,7 +58,7 @@ export const deleteDocumentService = async ({ documentId, userId }) => {
 
   // Remove the PDF from disk before deleting the DB row, so a failure here
   // doesn't leave an orphaned file with no record pointing at it.
-  await fs.unlink(document.storage_path);
+  await removeFileFromDisk(document.storage_path);
 
   // Delete the record. ON DELETE CASCADE on document_chunks (and in turn
   // document_chunk_vectors) removes all chunks and embeddings automatically.
