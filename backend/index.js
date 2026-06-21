@@ -12,17 +12,21 @@ import { errorHandler } from './src/middleware/error-handler.js';
 import { initAuthTables } from './src/api/auth/service/auth.service.js';
 
 const app = express();
-const port = process.env.PORT || 3777;
+const port = process.env.PORT || 5004;
 
 // ---------------------------------------------------------------------------
 // Startup env validation — fail fast rather than crash mid-request.
 // ---------------------------------------------------------------------------
 const validateEnv = () => {
-  const required = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD'];
+  const required = ['JWT_SECRET', 'DB_HOST', 'DB_USER'];
   for (const env of required) {
     if (!process.env[env]) {
       throw new Error(`Missing required environment variable: ${env}`);
     }
+  }
+
+  if (!process.env.DB_PASSWORD && !process.env.DB_PASS) {
+    throw new Error('Missing required environment variable: DB_PASSWORD or DB_PASS');
   }
 };
 
@@ -37,10 +41,10 @@ app.use(helmet());
 
 // ---------------------------------------------------------------------------
 // CORS — only allow the configured frontend origin.
-// Set FRONTEND_URL in .env (e.g. http://localhost:5001 for dev,
+// Set FRONTEND_URL in .env (e.g. http://localhost:5000 for dev,
 // https://your-domain.com for production).
 // ---------------------------------------------------------------------------
-const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5001';
+const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5000';
 app.use(cors({
   origin: allowedOrigin,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

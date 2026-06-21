@@ -162,6 +162,17 @@ async function getSimilarQuestions(questionHash, { k = 5, threshold = 0.75 } = {
   }
 }
 
+export {
+  getQuestions,
+  searchQuestionsSemantic,
+  getSimilarQuestions,
+  getSingleQuestion,
+  createQuestion,
+  postAnswer,
+  assessAnswerFit,
+  generateQuestionDraftCoach,
+};
+
 /**
  * Service for handling question-related API requests.
  */
