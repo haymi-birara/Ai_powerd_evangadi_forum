@@ -15,6 +15,10 @@ import Landing from "./pages/Landing/Landing";
 import PostQuestion from "./pages/PostQuestion/PostQuestion";
 import QuestionDetail from "./pages/QuestionDetail/QuestionDetail";
 
+const RagDocuments = React.lazy(
+  () => import("./pages/RagDocuments/RagDocuments"),
+);
+
 function App() {
   return (
     <BrowserRouter>
@@ -62,7 +66,9 @@ function App() {
               path="/rag-documents"
               element={
                 <ProtectedRoute>
-                  <h1>RAG Documents Page</h1>
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <RagDocuments />
+                  </React.Suspense>
                 </ProtectedRoute>
               }
             />

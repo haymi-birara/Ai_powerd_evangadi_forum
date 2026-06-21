@@ -79,11 +79,11 @@ export default function MyQuestions() {
                   </p>
                   <div className={styles.questionCard__footer}>
                     <span>
-                      {question.created_at
-                        ? new Date(question.created_at).toLocaleDateString()
+                      {question.createdAt
+                        ? new Date(question.createdAt).toLocaleDateString()
                         : 'Created by you'}
                     </span>
-                    <span>{question.answer_count ?? question.answers_count ?? '0'} replies</span>
+                    <span>{question.answerCount ?? 0} replies</span>
                   </div>
                 </div>
               </Link>
