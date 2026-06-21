@@ -43,7 +43,7 @@ export default function QuestionDetail() {
           questionService.getSingleQuestion(questionHash),
           questionService.getSimilarQuestions(questionHash, {
             k: 5,
-            threshold: 0.72,
+            threshold: 0.75,
           }),
         ]);
 

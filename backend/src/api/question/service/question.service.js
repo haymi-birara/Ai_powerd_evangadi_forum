@@ -210,106 +210,6 @@ const searchQuestionsLexicalFallback = async ({ query, limit }) => {
   return getQuestionsService({ search: query }).then((rows) => rows.slice(0, limit));
 };
 
-const getSimilarQuestionsLexicalFallback = async ({ sourceQuestionId, limit }) => {
-  const sourceSql = `
-    SELECT q.title, q.content
-    FROM questions q
-    WHERE q.question_id = ?
-    LIMIT 1
-  `;
-
-  const sourceRows = await safeExecute(sourceSql, [sourceQuestionId]);
-  const source = sourceRows[0] || {};
-  const raw = `${source.title || ""} ${source.content || ""}`.toLowerCase();
-  const tokens = Array.from(
-    new Set(raw.split(/[^a-z0-9]+/).filter((token) => token.length >= 4)),
-  ).slice(0, 6);
-
-  const conditions = [];
-  const params = [];
-
-  for (const token of tokens) {
-    conditions.push("(q.title LIKE ? OR q.content LIKE ?)");
-    const like = `%${token}%`;
-    params.push(like, like);
-  }
-
-  const whereSearch =
-    conditions.length > 0 ? `AND (${conditions.join(" OR ")})` : "";
-
-  const fallbackSql = `
-    SELECT
-      q.question_id AS id,
-      q.question_hash AS questionHash,
-      q.title,
-      q.content,
-      q.created_at AS createdAt,
-      q.updated_at AS updatedAt,
-      u.user_id AS userId,
-      u.first_name AS firstName,
-      u.last_name AS lastName,
-      COUNT(DISTINCT a.answer_id) AS answerCount
-    FROM questions q
-    JOIN users u
-      ON u.user_id = q.user_id
-    LEFT JOIN answers a
-      ON a.question_id = q.question_id
-    WHERE q.question_id <> ?
-    ${whereSearch}
-    GROUP BY
-      q.question_id,
-      q.question_hash,
-      q.title,
-      q.content,
-      q.created_at,
-      q.updated_at,
-      u.user_id,
-      u.first_name,
-      u.last_name
-    ORDER BY q.created_at DESC
-    LIMIT ${limit}
-  `;
-
-  const lexicalRows = await safeExecute(fallbackSql, [sourceQuestionId, ...params]);
-
-  if (lexicalRows.length > 0 || conditions.length === 0) {
-    return lexicalRows;
-  }
-
-  const broadFallbackSql = `
-    SELECT
-      q.question_id AS id,
-      q.question_hash AS questionHash,
-      q.title,
-      q.content,
-      q.created_at AS createdAt,
-      q.updated_at AS updatedAt,
-      u.user_id AS userId,
-      u.first_name AS firstName,
-      u.last_name AS lastName,
-      COUNT(DISTINCT a.answer_id) AS answerCount
-    FROM questions q
-    JOIN users u
-      ON u.user_id = q.user_id
-    LEFT JOIN answers a
-      ON a.question_id = q.question_id
-    WHERE q.question_id <> ?
-    GROUP BY
-      q.question_id,
-      q.question_hash,
-      q.title,
-      q.content,
-      q.created_at,
-      q.updated_at,
-      u.user_id,
-      u.first_name,
-      u.last_name
-    ORDER BY q.created_at DESC
-    LIMIT ${limit}
-  `;
-
-  return safeExecute(broadFallbackSql, [sourceQuestionId]);
-};
 export const getQuestionsService = async (filters = {}) => {
   const normalizedLimit = 100;
   const sortColumn = "q.created_at";
@@ -541,42 +441,18 @@ export const getSimilarQuestionsService = async ({ questionHash, k, threshold })
 
   const sourceVectorRows = await safeExecute(sourceVectorSql, [sourceQuestionId]);
 
-  if (sourceVectorRows.length === 0) {
-    const fallbackData = await getSimilarQuestionsLexicalFallback({
-      sourceQuestionId,
-      limit: Math.max(1, Math.min(20, toNumberOrFallback(k, 5))),
-    });
+  const limit = Math.max(1, Math.min(20, toNumberOrFallback(k, 5)));
+  const searchThreshold = Math.max(0, Math.min(1, toNumberOrFallback(threshold, 0.75)));
 
-    return {
-      data: fallbackData.map(toQuestionWithAuthor),
-      meta: {
-        total: fallbackData.length,
-        k: Math.max(1, Math.min(20, toNumberOrFallback(k, 5))),
-        threshold: Math.max(0, Math.min(1, toNumberOrFallback(threshold, 0.75))),
-      },
-    };
+  if (sourceVectorRows.length === 0) {
+    return { data: [], meta: { total: 0, k: limit, threshold: searchThreshold } };
   }
 
   const sourceEmbedding = parseEmbedding(sourceVectorRows[0].embedding);
 
   if (!Array.isArray(sourceEmbedding) || sourceEmbedding.length === 0) {
-    const fallbackData = await getSimilarQuestionsLexicalFallback({
-      sourceQuestionId,
-      limit: Math.max(1, Math.min(20, toNumberOrFallback(k, 5))),
-    });
-
-    return {
-      data: fallbackData.map(toQuestionWithAuthor),
-      meta: {
-        total: fallbackData.length,
-        k: Math.max(1, Math.min(20, toNumberOrFallback(k, 5))),
-        threshold: Math.max(0, Math.min(1, toNumberOrFallback(threshold, 0.75))),
-      },
-    };
+    return { data: [], meta: { total: 0, k: limit, threshold: searchThreshold } };
   }
-
-  const limit = Math.max(1, Math.min(20, toNumberOrFallback(k, 5)));
-  const searchThreshold = Math.max(0, Math.min(1, toNumberOrFallback(threshold, 0.75)));
 
   const candidateSql = `
     SELECT qv.question_id AS questionId, qv.embedding
@@ -600,26 +476,12 @@ export const getSimilarQuestionsService = async ({ questionHash, k, threshold })
   }
 
   const thresholdMatches = scored.filter((item) => item.score >= searchThreshold);
-  const ranked = (thresholdMatches.length > 0 ? thresholdMatches : scored).sort(
-    (a, b) => b.score - a.score,
-  );
-  const top = ranked.slice(0, limit);
 
-  if (top.length === 0) {
-    const fallbackData = await getSimilarQuestionsLexicalFallback({
-      sourceQuestionId,
-      limit,
-    });
-
-    return {
-      data: fallbackData.map(toQuestionWithAuthor),
-      meta: {
-        total: fallbackData.length,
-        k: limit,
-        threshold: searchThreshold,
-      },
-    };
+  if (thresholdMatches.length === 0) {
+    return { data: [], meta: { total: 0, k: limit, threshold: searchThreshold } };
   }
+
+  const top = thresholdMatches.sort((a, b) => b.score - a.score).slice(0, limit);
 
   const ids = top.map((item) => item.questionId);
   const detailRows = await fetchQuestionDetailsByIds(ids);

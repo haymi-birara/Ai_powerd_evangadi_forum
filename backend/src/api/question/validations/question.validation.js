@@ -12,7 +12,7 @@ export const createQuestionValidation = [
     .notEmpty().withMessage("Content is required").bail()
     .isString().withMessage("Content must be a string").bail()
     .trim()
-    .isLength({ min: 10 }).withMessage("Content must be at least 10 characters"),
+    .isLength({ min: 10, max: 10000 }).withMessage("Content must be between 10 and 10,000 characters"),
 
   validationErrorHandler,
 ];
@@ -28,7 +28,7 @@ export const draftCoachValidation = [
     .notEmpty().withMessage("Content is required").bail()
     .isString().withMessage("Content must be a string").bail()
     .trim()
-    .isLength({ min: 10 }).withMessage("Content must be at least 10 characters"),
+    .isLength({ min: 10, max: 10000 }).withMessage("Content must be between 10 and 10,000 characters"),
 
   validationErrorHandler,
 ];
