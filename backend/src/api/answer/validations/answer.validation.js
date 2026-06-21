@@ -15,8 +15,8 @@ export const createAnswerValidation = [
     .isString()
     .withMessage("content must be a string")
     .trim()
-    .isLength({ min: 20 })
-    .withMessage("content must be at least 20 characters long"),
+    .isLength({ min: 20, max: 10000 })
+    .withMessage("content must be between 20 and 10,000 characters long"),
 
   validationErrorHandler,
 ];

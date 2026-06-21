@@ -4,7 +4,13 @@
   margin-left: auto;
   margin-right: auto;
   padding: 2.5rem 1.5rem;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   background-color: transparent;
   display: flex;
   flex-direction: column;
@@ -73,12 +79,17 @@
   align-items: flex-start;
   gap: 1rem;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    border-color 0.2s;
 }
 
 .actionNavCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.04),
+    0 4px 6px -4px rgba(0, 0, 0, 0.04);
   border-color: #cbd5e1;
 }
 
@@ -91,7 +102,7 @@
   height: 2.5rem;
   border-radius: 0.5rem;
   flex-shrink: 0;
-  background-color: #fff7ed; 
+  background-color: #fff7ed;
   color: #ea580c;
 }
 
@@ -225,15 +236,15 @@
   margin: 0;
 }
 
- .emptyLink {
-   background: none;
-   border: none;
-   padding: 0;
-   color: #ea580c;
-   font-weight: 700;
-   cursor: pointer;
-   text-decoration: underline;
- }
+.emptyLink {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #ea580c;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
 /* Active List Matrix Rows Layout styling rules */
 .questionsWrapper {
   display: flex;
@@ -358,7 +369,8 @@
 }
 
 /* Spinner Framework Configurations */
-.loadingBox, .errorBox {
+.loadingBox,
+.errorBox {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -368,15 +380,15 @@
 }
 
 .errorIcon {
-   color: #ef4444;
-   margin-bottom: 0.75rem;
- }
- .authorName {
-   overflow: hidden;
-   text-overflow: ellipsis;
-   white-space: nowrap;
-   max-width: 14rem;
- }
+  color: #ef4444;
+  margin-bottom: 0.75rem;
+}
+.authorName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 14rem;
+}
 .spinner {
   color: #ea580c;
   animation: rotateSpin 0.8s linear infinite;
@@ -384,5 +396,81 @@
 }
 
 @keyframes rotateSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.searchBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background-color: #fff7ed;
+  border-top: 1px solid #fed7aa;
+  border-bottom: 1px solid #fed7aa;
+  font-size: 0.8125rem;
+  color: #9a3412;
+}
+
+.clearSearchBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  background: none;
+  border: 1px solid #fb923c;
+  color: #ea580c;
+  border-radius: 0.375rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.clearSearchBtn:hover {
+  background-color: #fff0e6;
+}
+
+.scoreTag {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+  border-radius: 0.375rem;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+}
+
+.aiAnswerCard {
+  margin: 0 0 0.75rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%);
+  border: 1.5px solid #fb923c;
+  border-radius: 0.75rem;
+}
+
+.aiAnswerHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #ea580c;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.aiAnswerText {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #1e293b;
+  margin: 0 0 0.75rem;
+}
+
+.aiAnswerDisclaimer {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin: 0;
 }
