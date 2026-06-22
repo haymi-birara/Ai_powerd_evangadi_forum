@@ -1,5 +1,5 @@
 -- Migration 001 — UP
--- Slice 1: Community Trust + AI Growth Features — Data Foundation
+-- Adds community trust foundation: voting, moderation, badges, and AI cache
 --
 -- Safe to run against any existing database. All statements are idempotent:
 --   - ALTER TABLE ... ADD COLUMN IF NOT EXISTS  → skips if column already exists
