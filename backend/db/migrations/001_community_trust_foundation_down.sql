@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS `user_moderation_status`;
 DROP TABLE IF EXISTS `moderation_flags`;
 DROP TABLE IF EXISTS `answer_votes`;
 
-ALTER TABLE `users` DROP COLUMN IF EXISTS `role`;
-ALTER TABLE `users` DROP COLUMN IF EXISTS `trust_score`;
+ALTER TABLE `users` DROP COLUMN `role`;
+ALTER TABLE `users` DROP COLUMN `trust_score`;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -1,22 +1,24 @@
 -- Migration 001 — UP
 -- Adds community trust foundation: voting, moderation, badges, and AI cache
 --
--- Safe to run against any existing database. All statements are idempotent:
---   - ALTER TABLE ... ADD COLUMN IF NOT EXISTS  → skips if column already exists
---   - CREATE TABLE IF NOT EXISTS               → skips if table already exists
+-- Notes:
+--   - ALTER TABLE statements must only be run once. MySQL does not support
+--     ADD COLUMN IF NOT EXISTS (that is MariaDB-only syntax). Running again
+--     will error with "Duplicate column name", which is safe to ignore.
+--   - CREATE TABLE IF NOT EXISTS statements are fully idempotent.
 -- Never drops or truncates anything.
 
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- -------------------------------------------------------------------------
--- users: add trust_score and role columns
+-- users: add trust_score and role columns (run once only)
 -- -------------------------------------------------------------------------
 ALTER TABLE `users`
-  ADD COLUMN IF NOT EXISTS `trust_score` INT NOT NULL DEFAULT 0
+  ADD COLUMN `trust_score` INT NOT NULL DEFAULT 0
   AFTER `password_hash`;
 
 ALTER TABLE `users`
-  ADD COLUMN IF NOT EXISTS `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user'
+  ADD COLUMN `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user'
   AFTER `trust_score`;
 
 -- -------------------------------------------------------------------------
