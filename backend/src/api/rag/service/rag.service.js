@@ -1,52 +1,14 @@
 import { safeExecute } from "../../../../db/config.js";
-import { generateQuestionEmbedding } from "../../question/service/vector.service.js";
+import {
+  generateQuestionEmbedding,
+  normalizeQuestionText,
+} from "../../question/service/vector.service.js";
 import { NotFoundError, BadRequestError } from "../../../utils/errors/index.js";
-
-const toNumberOrFallback = (value, fallback) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-};
-
-const parseEmbedding = (rawEmbedding) => {
-  if (Array.isArray(rawEmbedding)) return rawEmbedding;
-
-  if (Buffer.isBuffer(rawEmbedding)) {
-    try {
-      return JSON.parse(rawEmbedding.toString("utf-8"));
-    } catch {
-      return null;
-    }
-  }
-
-  if (typeof rawEmbedding === "string") {
-    try {
-      return JSON.parse(rawEmbedding);
-    } catch {
-      return null;
-    }
-  }
-
-  return null;
-};
-
-const dotProduct = (a, b) => {
-  let sum = 0;
-  const limit = Math.min(a.length, b.length);
-  for (let i = 0; i < limit; i += 1) {
-    sum += a[i] * b[i];
-  }
-  return sum;
-};
-
-const magnitude = (arr) =>
-  Math.sqrt(arr.reduce((sum, value) => sum + value * value, 0));
-
-const cosineSimilarity = (a, b) => {
-  const magA = magnitude(a);
-  const magB = magnitude(b);
-  if (magA === 0 || magB === 0) return 0;
-  return dotProduct(a, b) / (magA * magB);
-};
+import {
+  toNumberOrFallback,
+  parseEmbedding,
+  cosineSimilarity,
+} from "../../../utils/vectorUtils.js";
 
 export const searchInDocumentService = async ({
   documentId,
@@ -82,9 +44,10 @@ export const searchInDocumentService = async ({
     );
   }
 
-  // Step 2 - Embed the search query
+  // Step 2 - Embed the search query using the same normalization pipeline as stored chunk vectors
+  const normalizedText = normalizeQuestionText({ title: normalizedQuery });
   const { embedding: queryEmbedding } = await generateQuestionEmbedding(
-    normalizedQuery,
+    normalizedText,
     { taskType: "RETRIEVAL_QUERY" },
   );
 
@@ -166,4 +129,3 @@ export const searchInDocumentService = async ({
     results,
   };
 };
-
