@@ -21,7 +21,7 @@ const uploadPdf = multer({
     fileSize: 10 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
-    // step 3: Check that the file is an actual PDF
+    // Basic PDF check using mimetype/extension (content is validated during processing)
     const isPdf =
       file.mimetype === "application/pdf" ||
       file.originalname.toLowerCase().endsWith(".pdf");
