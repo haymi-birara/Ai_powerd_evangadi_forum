@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import QuestionForm from "../../components/QuestionForm";
-import AIDraftCoach from "../../components/AIDraftCoach";
-import { questionService } from "../../services/questionService";
+import QuestionForm from "../../../components/QuestionForm.jsx";
+import AIDraftCoach from "../../../components/AIDraftCoach.jsx";
+import { questionService } from "../../../services/question/question.service.js";
 
 const AskQuestion = () => {
   const navigate = useNavigate();
