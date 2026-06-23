@@ -14,6 +14,5 @@ export const listDocumentsController = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
-   
   }
 };

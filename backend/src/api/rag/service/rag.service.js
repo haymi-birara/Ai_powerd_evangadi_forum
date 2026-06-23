@@ -6,31 +6,34 @@ export const listDocumentsForUserService = async ({ userId }) => {
     throw new BadRequestError('User is required');
   }
 
+  const normalizedLimit = 100;
+
   const sql = `
     SELECT
-      document_id,
+      document_id AS documentId,
       title,
-      mime_type,
-      byte_size,
+      mime_type AS mimeType,
+      byte_size AS byteSize,
       status,
-      error_message,
-      created_at,
-      updated_at
+      error_message AS errorMessage,
+      created_at AS createdAt,
+      updated_at AS updatedAt
     FROM documents
     WHERE user_id = ?
     ORDER BY created_at DESC
+    LIMIT ${normalizedLimit}
   `;
 
   const rows = await safeExecute(sql, [userId]);
 
   return rows.map(document => ({
-    document_id: document.document_id,
+    documentId: document.documentId,
     title: document.title,
-    mime_type: document.mime_type,
-    byte_size: document.byte_size,
+    mimeType: document.mimeType,
+    byteSize: document.byteSize,
     status: document.status,
-    error_message: document.error_message,
-    created_at: document.created_at,
-    updated_at: document.updated_at,
+    errorMessage: document.errorMessage,
+    createdAt: document.createdAt,
+    updatedAt: document.updatedAt,
   }));
 };
