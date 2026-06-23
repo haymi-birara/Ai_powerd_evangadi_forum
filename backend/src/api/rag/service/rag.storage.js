@@ -18,7 +18,7 @@ export const UPLOADS_DIR = path.resolve(__dirname, "../../../../..", "uploads");
  */
 export async function listDocumentsForUser(userId) {
   const rows = await safeExecute(
-    `SELECT document_id, user_id, title, mime_type, storage_path,
+    `SELECT document_id, user_id, title, mime_type,
             byte_size, status, error_message, created_at, updated_at
      FROM documents
      WHERE user_id = ?
