@@ -8,8 +8,8 @@ const answerFitValidation = [
     .isString()
     .withMessage("Draft answer must be a string")
     .trim()
-    .isLength({ min: 10 })
-    .withMessage("Draft answer must be at least 10 characters"),
+    .isLength({ min: 10, max: 10000 })
+    .withMessage("Draft answer must be between 10 and 10,000 characters"),
   validationErrorHandler,
 ];
 

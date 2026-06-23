@@ -2,12 +2,54 @@ import { apiClient } from '../core/api.client.js';
 
 /**
  * Registers a new user.
- * @param {Object} userData - User details for registration.
  */
 async function register(userData) {
   try {
     const response = await apiClient.post('/api/auth/register', userData);
-    return { user: response.data.user };
+    return {
+      user: response.data.user,
+      welcomeMessage: response.data.welcomeMessage,
+      confirmationMessage: response.data.message,
+      confirmationUrl: response.data.confirmationUrl,
+    };
+  } catch (error) {
+    throw handleAuthError(error);
+  }
+}
+
+/**
+ * Confirms email using a confirmation token.
+ */
+async function confirmEmail(token) {
+  try {
+    const response = await apiClient.post('/api/auth/confirm-email', { token });
+    return response.data?.data;
+  } catch (error) {
+    throw handleAuthError(error);
+  }
+}
+
+/**
+ * Requests password reset link by email.
+ */
+async function forgotPassword(email) {
+  try {
+    const response = await apiClient.post('/api/auth/forgot-password', { email });
+    return {
+      message: response.data?.message,
+    };
+  } catch (error) {
+    throw handleAuthError(error);
+  }
+}
+
+/**
+ * Resets password using a reset token.
+ */
+async function resetPassword(payload) {
+  try {
+    const response = await apiClient.post('/api/auth/reset-password', payload);
+    return response.data?.data;
   } catch (error) {
     throw handleAuthError(error);
   }
@@ -15,7 +57,6 @@ async function register(userData) {
 
 /**
  * Logs in an existing user and stores their session in localStorage.
- * @param {Object} credentials - User login credentials.
  */
 async function login(credentials) {
   try {
@@ -31,47 +72,31 @@ async function login(credentials) {
   }
 }
 
-/**
- * Logs out the current user by clearing localStorage.
- */
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 }
 
-/**
- * Retrieves the stored JWT token from localStorage.
- */
 function getStoredToken() {
   return localStorage.getItem('token');
 }
 
-/**
- * Retrieves the stored user object from localStorage.
- */
 function getStoredUser() {
   const userJson = localStorage.getItem('user');
   if (!userJson) return null;
 
   try {
     return JSON.parse(userJson);
-  } catch (error) {
-    // If JSON parsing fails, clear invalid data
+  } catch {
     localStorage.removeItem('user');
     return null;
   }
 }
 
-/**
- * Checks if the user is currently authenticated based on local storage.
- */
 function isAuthenticated() {
   return !!getStoredToken();
 }
 
-/**
- * Centralized error handler for auth service requests.
- */
 function handleAuthError(error) {
   if (!error.response) {
     if (error.code === 'ECONNABORTED') {
@@ -91,6 +116,10 @@ function handleAuthError(error) {
       return new Error(backendMessage || 'Invalid input data.');
     case 401:
       return new Error(backendMessage || 'Invalid email or password.');
+    case 404:
+      return new Error(backendMessage || 'Requested account data was not found.');
+    case 503:
+      return new Error(backendMessage || 'Service is temporarily unavailable.');
     case 500:
       return new Error(
         'Something went wrong on our end. Please try again later.',
@@ -100,12 +129,12 @@ function handleAuthError(error) {
   }
 }
 
-/**
- * Service for handling auth-related requests.
- */
 export const authService = {
   register,
   login,
+  confirmEmail,
+  forgotPassword,
+  resetPassword,
   logout,
   getStoredToken,
   getStoredUser,

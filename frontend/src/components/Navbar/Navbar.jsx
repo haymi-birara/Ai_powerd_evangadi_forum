@@ -10,6 +10,9 @@ import styles from './Navbar.module.css';
 export default function Navbar({ title, subtitle, user, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+  const isSemanticActive =
+    location.pathname === '/dashboard' && Boolean(urlParams.get('semantic')?.trim());
 
   // Initialize searchTerm from URL if we are already on the dashboard
   const [searchTerm, setSearchTerm] = useState(() => {
@@ -30,18 +33,25 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
   // Debounced keyword search: updates `?q=` on the dashboard (500ms quiet period).
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+      const currentParams = new URLSearchParams(location.search);
+      const currentSemantic = currentParams.get('semantic') || '';
+
+      if (currentSemantic && currentSemantic === searchTerm.trim()) {
+        return;
+      }
+
       if (searchTerm.trim() !== '') {
         navigate(`/dashboard?q=${encodeURIComponent(searchTerm)}`);
       } else if (
         location.pathname === '/dashboard' &&
-        !new URLSearchParams(location.search).get('semantic')
+        !currentParams.get('semantic')
       ) {
         navigate('/dashboard');
       }
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm, navigate, location.pathname]);
+  }, [searchTerm, navigate, location.pathname, location.search]);
 
   const handleSemanticSearch = e => {
     e.preventDefault();
@@ -66,7 +76,12 @@ export default function Navbar({ title, subtitle, user, onLogout }) {
         ) : null}
       </div>
 
-      <form className={styles.navbar__search} onSubmit={handleSearchSubmit}>
+      <form
+        className={`${styles.navbar__search} ${
+          isSemanticActive ? styles['navbar__search--semantic'] : ''
+        }`}
+        onSubmit={handleSearchSubmit}
+      >
         <div className={styles['navbar__search-icon']}>
           <Search size={16} />
         </div>

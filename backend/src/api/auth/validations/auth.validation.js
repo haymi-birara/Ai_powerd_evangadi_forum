@@ -25,8 +25,8 @@ export const registerValidation = [
   body('password')
     .notEmpty()
     .withMessage('Password is required')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long'),
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long'),
 
   validationErrorHandler,
 ];
@@ -40,5 +40,30 @@ export const loginValidation = [
     .normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required'),
 
+  validationErrorHandler,
+];
+
+export const confirmEmailValidation = [
+  body('token').notEmpty().withMessage('Confirmation token is required'),
+  validationErrorHandler,
+];
+
+export const forgotPasswordValidation = [
+  body('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('A valid email address is required')
+    .normalizeEmail(),
+  validationErrorHandler,
+];
+
+export const resetPasswordValidation = [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('newPassword')
+    .notEmpty()
+    .withMessage('New password is required')
+    .isLength({ min: 6 })
+    .withMessage('New password must be at least 6 characters long'),
   validationErrorHandler,
 ];

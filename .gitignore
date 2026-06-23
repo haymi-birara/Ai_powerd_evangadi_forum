@@ -1,0 +1,6 @@
+# Root-level dependencies (installed by the root package.json dev scripts)
+node_modules/
+package-lock.json
+plans/
+backend/email-preview.html
+backend/test-confirmation-email.html
