@@ -2,8 +2,6 @@ import fs from "fs";
 import path from "path";
 import multer from "multer";
 import { BadRequestError } from "../utils/errors/index.js";
-import fs from "fs";
-
 const UPLOAD_DIR = "uploads";
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
