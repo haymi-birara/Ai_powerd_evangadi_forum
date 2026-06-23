@@ -93,12 +93,12 @@ export const getDocumentFile = async (req, res, next) => {
     if (!doc) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json({ message: "Document not found" });
+        .json({ msg: "Document not found" });
     }
     if (doc.user_id !== req.user.id) {
       return res
         .status(StatusCodes.FORBIDDEN)
-        .json({ message: "Access denied" });
+        .json({ msg: "Access denied" });
     }
 
     // storage_path is the absolute disk path saved by multer
