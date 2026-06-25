@@ -560,9 +560,18 @@ export default function RagDocuments() {
     setUploadProgress(0);
 
     try {
-      const created = await ragService.uploadPdf(file, (progress) => {
+      const createdRaw = await ragService.uploadPdf(file, (progress) => {
         setUploadProgress(progress);
       });
+
+      const created = {
+        documentId: createdRaw.documentId ?? createdRaw.document_id,
+        title: createdRaw.title,
+        mimeType: createdRaw.mimeType ?? createdRaw.mime_type,
+        byteSize: createdRaw.byteSize ?? createdRaw.byte_size,
+        status: createdRaw.status,
+        errorMessage: createdRaw.errorMessage ?? createdRaw.error_message,
+      };
 
       setFile(null);
 
