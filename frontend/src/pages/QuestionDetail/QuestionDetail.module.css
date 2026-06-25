@@ -134,7 +134,6 @@
   background: var(--surface);
   color: var(--text-secondary);
   cursor: default;
-   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .answerCountPill:hover {
   background: var(--surface-hover);
