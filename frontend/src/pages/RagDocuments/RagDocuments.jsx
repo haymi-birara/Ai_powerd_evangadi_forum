@@ -290,6 +290,7 @@ function DocumentWorkspace({ documentId, title, byteSize }) {
                     </p>
 
                     <p className={styles.resultText}>{chunk.excerpt}</p>
+                  </div>
                 ))}
               </div>
             )}
