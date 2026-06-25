@@ -286,11 +286,10 @@ function DocumentWorkspace({ documentId, title, byteSize }) {
                     style={{ animationDelay: `${idx * 80}ms` }}
                   >
                     <p className={styles.resultScore}>
-                      Relevance: {(chunk.similarity || 0).toFixed(2)}
+                      Relevance: {(chunk.score || 0).toFixed(2)}
                     </p>
 
-                    <p className={styles.resultText}>{chunk.content}</p>
-                  </div>
+                    <p className={styles.resultText}>{chunk.excerpt}</p>
                 ))}
               </div>
             )}
