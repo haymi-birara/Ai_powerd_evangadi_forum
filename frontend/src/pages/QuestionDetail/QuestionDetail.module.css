@@ -272,25 +272,8 @@
   font-style: italic;
 }
 
-.textarea {
-  width: 100%;
-  min-height: 260px;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text-primary);
-  font-family: monospace;
-  font-size: var(--text-sm);
-  line-height: 1.6;
-  resize: vertical;
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.textarea:focus {
-  border-color: var(--primary);
-}
+/* NOTE: `.textarea` is already defined later in this file.
+   Avoid redefining it here to prevent conflicting styles. */
 
 .toolbar {
   display: flex;
