@@ -1,9 +1,7 @@
-import express from "express";
-import { authenticateUser as authenticate } from "../../../middleware/authentication.js";
-import { deleteDocumentController } from "../controller/rag.controller.js";
-import { deleteDocumentValidation } from "../validations/rag.validation.js";
 import { Router } from "express";
 import { authenticateUser } from "../../../middleware/authentication.js";
+import { deleteDocumentController } from "../controller/rag.controller.js";
+import { deleteDocumentValidation } from "../validations/rag.validation.js";
 import {
   handlePdfUpload,
   createDocumentMulterErrorHandler,
