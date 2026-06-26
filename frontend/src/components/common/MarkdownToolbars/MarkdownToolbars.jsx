@@ -60,6 +60,7 @@ const MarkdownToolbar = ({
     <div
       className={`${styles.editorWrapper}${hasError ? ` ${styles.editorWrapperError}` : ""}`}
     >
+      <div className={styles.toolbar}>
         <div className={styles.toolbarButtons}>
           <button
             type="button"
