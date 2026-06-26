@@ -1,5 +1,3 @@
-import { StatusCodes } from "http-status-codes";
-import { searchInDocumentService } from "../service/rag.service.js";
 import { deleteDocumentService } from "../service/rag.service.js";
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError } from "../../../utils/errors/index.js";

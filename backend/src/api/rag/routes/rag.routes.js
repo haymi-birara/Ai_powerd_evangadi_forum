@@ -1,13 +1,3 @@
-import express from "express";
-import { authenticateUser } from "../../../middleware/authentication.js";
-import { searchInDocumentValidation } from "../validations/rag.validation.js";
-import { searchInDocumentController } from "../controller/rag.controller.js";
-
-const ragRoute = express.Router();
-
-ragRoute.get(
-  "/:documentId/search",
-  authenticateUser,
 import { Router } from "express";
 import { authenticateUser } from "../../../middleware/authentication.js";
 import { deleteDocumentController } from "../controller/rag.controller.js";
@@ -50,7 +40,6 @@ ragRoutes.get(
   searchInDocumentController,
 );
 
-export default ragRoute;
 ragRoutes.post(
   "/documents/:documentId/query",
   queryDocumentValidation,

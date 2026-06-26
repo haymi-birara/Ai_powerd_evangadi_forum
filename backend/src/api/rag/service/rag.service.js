@@ -1,7 +1,5 @@
-import path from "path";
 import fs from "fs/promises";
-import { generateQuestionEmbedding } from "../../question/service/vector.service.js";
-import { NotFoundError, BadRequestError } from "../../../utils/errors/index.js";
+import path from "path";
 import { fileURLToPath } from "url";
 import { safeExecute } from "../../../../db/config.js";
 import { extractTextFromPDF } from "../../../utils/pdfParser.js";
@@ -21,53 +19,6 @@ import {
   getQueryEmbedding,
   answerFromRagChunksService,
 } from "../../../utils/ragGemini.js";
-
-const toNumberOrFallback = (value, fallback) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-};
-
-const parseEmbedding = (rawEmbedding) => {
-  if (Array.isArray(rawEmbedding)) return rawEmbedding;
-
-  if (Buffer.isBuffer(rawEmbedding)) {
-    try {
-      return JSON.parse(rawEmbedding.toString("utf-8"));
-    } catch {
-      return null;
-    }
-  }
-
-  if (typeof rawEmbedding === "string") {
-    try {
-      return JSON.parse(rawEmbedding);
-    } catch {
-      return null;
-    }
-  }
-
-  return null;
-};
-
-const dotProduct = (a, b) => {
-  let sum = 0;
-  const limit = Math.min(a.length, b.length);
-  for (let i = 0; i < limit; i += 1) {
-    sum += a[i] * b[i];
-  }
-  return sum;
-};
-
-const magnitude = (arr) =>
-  Math.sqrt(arr.reduce((sum, value) => sum + value * value, 0));
-
-const cosineSimilarity = (a, b) => {
-  const magA = magnitude(a);
-  const magB = magnitude(b);
-  if (magA === 0 || magB === 0) return 0;
-  return dotProduct(a, b) / (magA * magB);
-};
-
 
 // Backend root directory (.../backend), used to resolve relative storage paths.
 // service dir = .../backend/src/api/rag/service → four levels up is backend/.
@@ -226,9 +177,6 @@ export const searchInDocumentService = async ({
     );
   }
 
-  // Step 2 - Embed the search query
-  const { embedding: queryEmbedding } = await generateQuestionEmbedding(
-    normalizedQuery,
   // Step 2 - Embed the search query using the same normalization pipeline as stored chunk vectors
   const normalizedText = normalizeQuestionText({ title: normalizedQuery });
   const { embedding: queryEmbedding } = await generateQuestionEmbedding(
@@ -255,24 +203,6 @@ export const searchInDocumentService = async ({
       results: [],
     };
   }
-
-  // Step 4 - Compute cosine similarity
-  const scored = [];
-
-  for (const row of vectorRows) {
-    const vector = parseEmbedding(row.embedding);
-
-    if (!Array.isArray(vector) || vector.length === 0) {
-      continue;
-    }
-
-    const score = cosineSimilarity(queryEmbedding, vector);
-    scored.push({ chunkId: row.chunkId, chunkIndex: row.chunkIndex, score });
-  }
-
-  // Step 5 - Sort and filter
-  const ranked = scored.sort((a, b) => b.score - a.score);
-  const top = ranked.slice(0, limit);
   // Step 4 - Compute cosine similarity and keep only top-k (O(n log k))
   const heap = [];
 
