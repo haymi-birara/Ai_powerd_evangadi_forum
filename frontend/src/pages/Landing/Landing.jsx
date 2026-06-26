@@ -351,12 +351,14 @@ export default function Landing() {
                 </div>
               </div>
             </section>
+          </>
+        )}
 
-            <section
-              className={styles.landing__process}
-              id='how-it-works'
-              aria-labelledby='how-heading'
-            >
+        <section
+          className={styles.landing__process}
+          id='how-it-works'
+          aria-labelledby='how-heading'
+        >
               <div className={styles.landing__sectionInner}>
                 <h2 className={styles.landing__sectionTitle} id='how-heading'>
                   How it works
@@ -424,26 +426,26 @@ export default function Landing() {
                   </li>
                 </ol>
               </div>
-            </section>
+        </section>
 
-            <section className={styles.landing__cta}>
-              <div className={styles.landing__ctaInner}>
-                <h2 className={styles.landing__ctaTitle}>Ready when you are</h2>
-                <p className={styles.landing__ctaText}>
-                  Create a free learner account to post, reply, and search the
-                  forum index.
-                </p>
-                <button
-                  type='button'
-                  className={styles.landing__btnPrimary}
-                  onClick={() => navigate('/auth')}
-                >
-                  Create free account
-                  <ArrowRight size={16} aria-hidden />
-                </button>
-              </div>
-            </section>
-          </>
+        {!isAuthenticated && (
+          <section className={styles.landing__cta}>
+            <div className={styles.landing__ctaInner}>
+              <h2 className={styles.landing__ctaTitle}>Ready when you are</h2>
+              <p className={styles.landing__ctaText}>
+                Create a free learner account to post, reply, and search the
+                forum index.
+              </p>
+              <button
+                type='button'
+                className={styles.landing__btnPrimary}
+                onClick={() => navigate('/auth')}
+              >
+                Create free account
+                <ArrowRight size={16} aria-hidden />
+              </button>
+            </div>
+          </section>
         )}
 
         {isAuthenticated && (
