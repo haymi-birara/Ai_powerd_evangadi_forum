@@ -6,6 +6,8 @@ import { getUserProfileController } from "../controller/user.controller.js";
 
 const router = express.Router();
 
+// All /api/users routes are authenticated — profiles are viewable only by
+// logged-in users (reached from the auth-gated leaderboard / profile pages).
 router.use(authenticate);
 
 // GET /api/users/:userId/profile

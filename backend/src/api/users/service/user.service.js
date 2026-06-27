@@ -10,7 +10,9 @@ export const getUserProfileService = async (userId) => {
        u.trust_score AS trustScore,
        u.created_at AS joinedAt
      FROM users u
+     LEFT JOIN user_moderation_status ums ON ums.user_id = u.user_id
      WHERE u.user_id = ?
+       AND (ums.status IS NULL OR ums.status NOT IN ('blocked', 'removed'))
      LIMIT 1`,
     [userId]
   );
