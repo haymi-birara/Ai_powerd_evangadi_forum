@@ -496,6 +496,9 @@
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
+  /* Display the fit verdict capitalized ("Weak FIT") while the lowercase
+     `level` value still drives the fitPanel--<level> class on the element. */
+  text-transform: capitalize;
 }
 
 .fitNote {
