@@ -5,6 +5,14 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const EMBEDDING_MODEL =
   process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-001";
 
+// RAG document & query embeddings share this dimensionality. 768 matches the
+// question embeddings (one size across the app), and at ~4x less storage/compute
+// than the 3072 default keeps the in-app cosine scan fast. Query and chunk
+// vectors MUST use the same value — both functions below read this constant.
+const parsedRagDim = Number.parseInt(process.env.RAG_EMBEDDING_DIM, 10);
+const RAG_EMBEDDING_DIM =
+  Number.isInteger(parsedRagDim) && parsedRagDim > 0 ? parsedRagDim : 768;
+
 const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
 
 export const getDocumentEmbedding = async (text) => {
@@ -17,7 +25,7 @@ export const getDocumentEmbedding = async (text) => {
   const result = await ai.models.embedContent({
     model: EMBEDDING_MODEL,
     contents: text,
-    config: { taskType: "RETRIEVAL_DOCUMENT" },
+    config: { taskType: "RETRIEVAL_DOCUMENT", outputDimensionality: RAG_EMBEDDING_DIM },
   });
 
   const values = result.embeddings?.[0]?.values ?? result.embeddings?.values;
@@ -36,7 +44,7 @@ export const getQueryEmbedding = async (text) => {
   const result = await ai.models.embedContent({
     model: EMBEDDING_MODEL,
     contents: text,
-    config: { taskType: "RETRIEVAL_QUERY" },
+    config: { taskType: "RETRIEVAL_QUERY", outputDimensionality: RAG_EMBEDDING_DIM },
   });
 
   const values = result.embeddings?.[0]?.values ?? result.embeddings?.values;
