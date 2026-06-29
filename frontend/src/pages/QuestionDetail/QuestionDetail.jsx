@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import MarkdownToolbar from "../../components/common/MarkdownToolbars/MarkdownToolbars.jsx";
-import { MessageSquare, ArrowLeft, Share2, ThumbsUp } from "lucide-react";
+import { MessageSquare, ArrowLeft, Share2, ThumbsUp ,Check} from "lucide-react";
 import { questionService } from "../../services/question/question.service.js";
 import { answerService } from "../../services/answer/answer.service.js";
 import styles from "./QuestionDetail.module.css";
@@ -40,7 +40,7 @@ export default function QuestionDetail() {
   const [toastMessage, setToastMessage] = useState(''); // Toast state
   const [answerUnderReview, setAnswerUnderReview] = useState(false);
   const [answerRejection, setAnswerRejection] = useState(null); // { reason, guidance }
-
+  const [isCopied, setIsCopied] = useState(false);
   const isOwnQuestion =
     question && user ? Number(question.userId) === Number(user.id) : false;
 
@@ -79,14 +79,14 @@ export default function QuestionDetail() {
     };
   }, [questionHash]);
 
-const triggerToast = msg => {
-  setToastMessage(prev => (prev === msg ? `${msg} ` : msg));
-};
-  useEffect(() => {
-     if (!toastMessage) return undefined;
-     const id = setTimeout(() => setToastMessage(''), 3000);
-     return () => clearTimeout(id);
-   }, [toastMessage]);
+// const triggerToast = msg => {
+//   setToastMessage(prev => (prev === msg ? `${msg} ` : msg));
+// };
+//   useEffect(() => {
+//      if (!toastMessage) return undefined;
+//      const id = setTimeout(() => setToastMessage(''), 3000);
+//      return () => clearTimeout(id);
+//    }, [toastMessage]);
 
   const handleCheckFit = async () => {
     if (answerText.trim().length < 20) {
@@ -183,7 +183,8 @@ const triggerToast = msg => {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      triggerToast("Link copied to clipboard!");
+      // triggerToast("Link copied to clipboard!");
+      setIsCopied(true);
     } catch (err) {
       console.error("Failed to copy link: ", err);
 
@@ -194,12 +195,19 @@ const triggerToast = msg => {
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
-        triggerToast("Link copied to clipboard!");
+        // triggerToast("Link copied to clipboard!");
+        setIsCopied(true);
       } catch {
-        triggerToast("Could not copy link automatically.");
+        // triggerToast("Could not copy link automatically.");
+        console.error("Could not copy link automatically.");
       }
     }
   };
+  useEffect(() => {
+    if (!isCopied) return;
+    const timeoutId = setTimeout(() => setIsCopied(false), 3000);
+    return () => clearTimeout(timeoutId);
+  }, [isCopied]);
 
   if (isLoading) {
     return (
@@ -264,22 +272,32 @@ const triggerToast = msg => {
           <div className={styles.questionBody}>
             <ReactMarkdown components={markdownComponents}>{question.content}</ReactMarkdown>
           </div>
-
-          <div className={styles.questionActions}>
-            <button className={styles.secondaryAction} onClick={handleShare}
-             title="Copy the page link to share this question"
+<div className={styles.questionActions}>
+            <button 
+              className={`${styles.secondaryAction} ${isCopied ? styles.copiedAction : ""}`} 
+              onClick={handleShare}
+              title="Copy the page link to share this question"
+              disabled={isCopied}
             >
-              <Share2 size={14} />
-              Share
+              {isCopied ? (
+                <>
+                  <Check size={14} />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 size={14} />
+                  Share
+                </>
+              )}
             </button>
-            <span className={styles.answerCountPill}
-            title="How many answers this question has"
-            >
+            <span className={styles.answerCountPill} title="How many answers this question has">
               <MessageSquare size={14} />
               {answers.length} Answers
             </span>
           </div>
         </section>
+          
 
         <section className={styles.answersSection}>
           <h2 className={styles.sectionTitle}>

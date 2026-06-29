@@ -134,10 +134,15 @@
   background: var(--surface);
   color: var(--text-secondary);
   cursor: default;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
 }
-/* .answerCountPill:active {
+.answerCountPill:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-tertiary);
+}
+.answerCountPill:active {
   transform: scale(0.97);
-} */
+}
 
 .answersSection,
 .answerFormCard {
@@ -188,46 +193,6 @@
   padding: var(--spacing-lg);
 }
 
-.answerFooter {
-  margin-top: var(--spacing-md);
-  padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.voteButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--surface-container-low);
-  color: var(--text-tertiary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.voteButton:hover:not(:disabled) {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light);
-}
-
-.voteButton--active {
-  background: var(--primary-light);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.voteButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .errorBanner {
   background: var(--error-light);
   border: 1px solid rgba(239, 68, 68, 0.35);
@@ -237,107 +202,11 @@
   font-size: var(--text-sm);
 }
 
-.reviewBanner {
-  background: #f0fdf4;
-  border: 1px solid #22c55e;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--text-sm);
-  color: #166534;
-}
-
-.moderationBanner {
-  background: #fffbeb;
-  border: 1px solid #f59e0b;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: var(--text-sm);
-  color: #92400e;
-}
-
-.moderationGuidance {
-  margin: var(--spacing-xs) 0 0;
-  color: #78350f;
-  font-weight: 400;
-}
-
 .editorShell {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
-
-.editorTabRow {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-container-low);
-}
-
-.editorTab {
-  padding: 0.4rem 0.75rem;
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  color: var(--text-secondary);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition:
-    color var(--transition-fast),
-    border-color var(--transition-fast);
-  margin-bottom: -1px;
-}
-
-.editorTab:hover {
-  color: var(--text-primary);
-}
-
-.editorTabActive {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-}
-
-.previewPane {
-  min-height: 10rem;
-  padding: var(--spacing-md);
-  font-size: var(--text-sm);
-  line-height: 1.7;
-  color: var(--text-primary);
-}
-
-.previewPane p {
-  margin: 0 0 0.5em;
-}
-.previewPane strong {
-  font-weight: 700;
-}
-.previewPane em {
-  font-style: italic;
-}
-.previewPane code {
-  font-family: monospace;
-  background: var(--surface-container-high);
-  padding: 0.1em 0.3em;
-  border-radius: var(--radius-sm);
-}
-.previewPane pre {
-  background: var(--surface-container-high);
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  overflow-x: auto;
-}
-.previewPane a {
-  color: var(--primary);
-  text-decoration: underline;
-}
-
-.previewEmpty {
-  color: var(--text-tertiary);
-  font-style: italic;
-}
-
-/* NOTE: `.textarea` is already defined later in this file.
-   Avoid redefining it here to prevent conflicting styles. */
 
 .toolbar {
   display: flex;
@@ -346,72 +215,6 @@
   padding: 0.45rem var(--spacing-md);
   border-bottom: 1px solid var(--border);
   background: var(--surface-container-low);
-}
-
-.editorPreviewContainer {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--spacing-sm);
-  min-height: 260px;
-  background: var(--surface);
-}
-
-.editorPane {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.livePreviewPane {
-  padding: var(--spacing-md);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface-container-low);
-  overflow-y: auto;
-  line-height: 1.7;
-  color: var(--text-primary);
-}
-
-.previewLabel {
-  font-weight: 600;
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  margin: 0 0 var(--spacing-sm) 0;
-  letter-spacing: 0.5px;
-}
-
-.livePreviewPane p {
-  margin: 0 0 0.75em 0;
-}
-.livePreviewPane strong {
-  font-weight: 700;
-}
-.livePreviewPane em {
-  font-style: italic;
-}
-.livePreviewPane code {
-  font-family: monospace;
-  background: var(--surface-container-high);
-  padding: 0.1em 0.3em;
-  border-radius: var(--radius-sm);
-}
-.livePreviewPane pre {
-  background: var(--surface-container-high);
-  padding: var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  overflow-x: auto;
-  margin: 0.5em 0;
-}
-.livePreviewPane a {
-  color: var(--primary);
-  text-decoration: underline;
-}
-.livePreviewPane h1,
-.livePreviewPane h2,
-.livePreviewPane h3 {
-  margin: 1em 0 0.5em 0;
-  font-weight: 700;
 }
 
 .toolbarButtons {
@@ -496,9 +299,6 @@
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
-  /* Display the fit verdict capitalized ("Weak FIT") while the lowercase
-     `level` value still drives the fitPanel--<level> class on the element. */
-  text-transform: capitalize;
 }
 
 .fitNote {
@@ -562,6 +362,7 @@
   }
 }
 .secondaryAction {
+  cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -572,7 +373,7 @@
 
 .postButton {
   cursor: pointer;
-  transition: opacity 0.2s ease, filter 0.2s ease;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
 }
 
 .postButton:hover:not([disabled]) {
@@ -598,8 +399,3 @@
   90% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(1rem); }
 }
-@media (prefers-reduced-motion: reduce) {
-   .toast {
-     animation: none;
-   }
- }
