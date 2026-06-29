@@ -128,6 +128,18 @@
   background: var(--surface-container-low);
   color: var(--text-secondary);
 }
+.secondaryAction.copiedAction {
+  background-color: #ffedd5; 
+  border-color: #ea580c;     
+  color: #ea580c;           
+  font-weight: var(--font-semibold);
+  cursor: default;
+}
+
+.secondaryAction.copiedAction:hover {
+  background-color: #ffedd5;
+  border-color: #ea580c;
+}
 
 .answerCountPill {
   border: 1px solid var(--border);
