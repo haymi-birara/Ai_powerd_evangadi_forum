@@ -12,3 +12,13 @@ backend/email-preview.html
 backend/test-confirmation-email.html
 node_modules/
 uploads/
+
+# Deploy artifacts & secrets (never commit)
+*.zip
+/deploy/
+/scripts/
+/ecosystem.config.cjs
+backend/app.cjs
+**/.env.production
+**/.env.production.*
+
