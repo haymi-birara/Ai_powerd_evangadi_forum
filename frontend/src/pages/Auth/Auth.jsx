@@ -217,8 +217,8 @@ export default function Auth() {
         setError("New password is required.");
         return;
       }
-      if (newPassword.length < 6) {
-        setError("New password must be at least 6 characters long.");
+      if (newPassword.length < 8) {
+        setError("New password must be at least 8 characters long.");
         return;
       }
       if (newPassword !== confirmNewPassword) {
@@ -604,7 +604,7 @@ export default function Auth() {
                       <input
                         id="newPassword"
                         type="password"
-                        placeholder="At least 6 characters"
+                        placeholder="At least 8 characters"
                         className={styles.auth__input}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
