@@ -4,8 +4,10 @@ import { authenticateUser as authenticate } from "../../../middleware/authentica
 
 import { createAnswerController } from "../controller/answer.controller.js";
 import { addVoteController, removeVoteController } from "../controller/vote.controller.js";
+import { createReplyController } from "../controller/reply.controller.js";
 import { createAnswerValidation } from "../validations/answer.validation.js";
 import { voteParamValidation } from "../validations/vote.validation.js";
+import { createReplyValidation } from "../validations/reply.validation.js";
 
 const router = express.Router();
 
@@ -18,5 +20,8 @@ router.post("/", createAnswerValidation, createAnswerController);
 // DELETE /api/answers/:answerId/vote
 router.post("/:answerId/vote", voteParamValidation, addVoteController);
 router.delete("/:answerId/vote", voteParamValidation, removeVoteController);
+
+// POST /api/answers/:answerId/reply  (any authenticated user)
+router.post("/:answerId/reply", createReplyValidation, createReplyController);
 
 export default router;

@@ -64,6 +64,23 @@
   color: var(--text-primary);
 }
 
+/* Community recognition badge shown next to a vote-leader's name.
+   Icon-only (trophy / crown) with a hover tooltip — simple and elegant. */
+.answerRecognition {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  cursor: help;
+}
+
+/* Tier colours so the badge visibly reflects standing. */
+.answerRecognition--gold { color: #f59e0b; }
+.answerRecognition--silver { color: #94a3b8; }
+.answerRecognition--bronze { color: #d97706; }
+.answerRecognition--year { color: #9333ea; }
+
 .postedAt,
 .answerDate,
 .relatedMeta,
@@ -410,4 +427,193 @@
   10% { opacity: 1; transform: translateY(0); }
   90% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(1rem); }
+}
+
+/* One-time "your question was answered" banner (owner only). */
+.answeredBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #14532d;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.answeredBanner svg {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.answeredBannerClose {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: transparent;
+  color: #4d7c5b;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.answeredBannerClose:hover {
+  background: #dcfce7;
+}
+
+/* ── Answer replies (question owner) ── */
+.replyToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+}
+
+.replyToggle:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.replySection {
+  margin-top: 0.85rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.replyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.replyItem {
+  background: var(--surface-muted, #f8fafc);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+}
+
+.replyHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.replyAuthor {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.replyBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #0f766e;
+  background: #ccfbf1;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.replyDate {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.replyBody {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.replyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.replyTextarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  font: inherit;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+.replyTextarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.replyError {
+  margin: 0;
+  color: var(--error, #dc2626);
+  font-size: var(--text-sm);
+}
+
+.replyActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.replyCancel {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.replyCancel:hover:not(:disabled) {
+  background: var(--surface-muted, #f1f5f9);
+}
+
+.replySubmit {
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--text-sm);
+  padding: 0.4rem 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.replySubmit:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.replySubmit:disabled,
+.replyCancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
