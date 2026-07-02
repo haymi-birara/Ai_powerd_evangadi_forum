@@ -557,3 +557,196 @@
   min-width: 7rem;
   text-align: center;
 }
+
+/* ── Evaluator role pill ──────────────────────────────────────────────────── */
+.rolePill--evaluator { background: #e0f2fe; color: #0369a1; }
+
+/* ── Role select (replaces toggle button) ─────────────────────────────────── */
+.roleSelect {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-transform: capitalize;
+}
+.roleSelect:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Pending user row highlight ───────────────────────────────────────────── */
+.rowPending td { background: #fffbeb; }
+
+/* ── Status pill: pending ─────────────────────────────────────────────────── */
+.status--pending { background: #fef9c3; color: #92400e; }
+
+/* ── Resend button ────────────────────────────────────────────────────────── */
+.resendBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #fb923c;
+  border-radius: var(--radius-md);
+  background: #fff7ed;
+  color: #c2410c;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+.resendBtn:hover:not(:disabled) { background: #ffedd5; }
+.resendBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning { animation: spin 0.8s linear infinite; }
+
+/* ── Expandable content block ─────────────────────────────────────────────── */
+.contentBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.expandBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-xs);
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-weight: var(--font-medium);
+}
+.expandBtn:hover { text-decoration: underline; }
+
+/* ── Escalation tooltip row + widget ─────────────────────────────────────── */
+.escalationHelperRow {
+  display: flex;
+  justify-content: flex-end;
+}
+.escalationHelper {
+  position: relative;
+  display: inline-flex;
+}
+.infoBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+.infoBtn:hover { color: var(--primary); border-color: var(--primary); }
+
+.escalationTooltip {
+  position: absolute;
+  top: 2rem;
+  right: 0;
+  z-index: 30;
+  width: 22rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-md);
+}
+.escalationTooltipTitle {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.escalationTable { width: 100%; border-collapse: collapse; }
+.escalationTable tr + tr td { border-top: 1px solid var(--border); }
+.escalationLevel {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--text-primary);
+  padding: 0.3rem 0.5rem 0.3rem 0;
+  white-space: nowrap;
+}
+.escalationConsequence {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  padding: 0.3rem 0;
+}
+.escalationNote {
+  margin: 0.6rem 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  line-height: 1.5;
+}
+
+/* ── Metrics tab ──────────────────────────────────────────────────────────── */
+.metricsSection { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.metricsSection--mt { margin-top: var(--spacing-md); }
+
+.metricsHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+.metricsHeading--mt { margin-top: var(--spacing-md); }
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.metricCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.metricCard--warn { border-color: #fb923c; background: #fff7ed; }
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+.metricValue--green  { color: #15803d; }
+.metricValue--orange { color: #c2410c; }
+
+.metricLabel {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.infraGrid { display: flex; flex-direction: column; gap: 0; }
+.infraRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem var(--spacing-sm);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-sm);
+}
+.infraRow:last-child { border-bottom: none; }
+.infraLabel { color: var(--text-secondary); font-weight: var(--font-medium); }
+.infraValue { color: var(--text-primary); }
+.infraValue--ok   { color: #15803d; font-weight: var(--font-medium); }
+.infraValue--warn { color: #c2410c; font-weight: var(--font-medium); }
+

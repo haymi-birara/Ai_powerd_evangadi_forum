@@ -117,6 +117,28 @@
   color: var(--text-primary);
 }
 
+/* Community recognition badge — icon-only (trophy / crown) with a hover
+   tooltip, matching the badge shown next to answer authors. */
+.recognition {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  cursor: help;
+}
+
+.recognition--rank1,
+.recognition--gold { color: #f59e0b; }
+
+.recognition--rank2,
+.recognition--silver { color: #94a3b8; }
+
+.recognition--rank3,
+.recognition--bronze { color: #d97706; }
+
+.recognition--year { color: #9333ea; }
+
 .score {
   font-size: var(--text-sm);
   color: var(--text-tertiary);

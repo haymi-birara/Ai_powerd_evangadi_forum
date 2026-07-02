@@ -1,6 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import { safeExecute } from "../../../../db/config.js";
-import { ServiceUnavailableError } from "../../../utils/errors/index.js";
+import {
+  ServiceUnavailableError,
+  TooManyRequestsError,
+} from "../../../utils/errors/index.js";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ai = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
@@ -50,10 +53,29 @@ Scoring guide:
 - 0-29: Off-topic, unclear, or does not address the question at all
 `;
 
-  const response = await ai.models.generateContent({
-    model: process.env.GEMINI_TEXT_MODEL || "gemini-2.5-flash-lite",
-    contents: prompt,
-  });
+  let response;
+  try {
+    response = await ai.models.generateContent({
+      model: process.env.GEMINI_TEXT_MODEL || "gemini-2.5-flash-lite",
+      contents: prompt,
+    });
+  } catch (error) {
+    const errorText = String(error?.message || "");
+    if (
+      error?.status === 429 ||
+      /RESOURCE_EXHAUSTED|quota exceeded|rate limit/i.test(errorText)
+    ) {
+      throw new TooManyRequestsError(
+        "Answer fit limit reached for now. Please try again later or enable higher Gemini quota.",
+        "AI_QUOTA_EXCEEDED",
+      );
+    }
+
+    throw new ServiceUnavailableError(
+      "Answer fit AI service is unavailable. Check GEMINI_API_KEY and model access.",
+      "AI_SERVICE_UNAVAILABLE",
+    );
+  }
 
   const rawText = response.text?.trim();
   if (!rawText) {

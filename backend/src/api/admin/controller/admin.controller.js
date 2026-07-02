@@ -7,6 +7,8 @@ import {
   updateUserRoleService,
   deleteUserService,
   getFlagHistoryService,
+  getAdminMetricsService,
+  adminResendConfirmationService,
 } from "../service/admin.service.js";
 
 export const getAdminQueueController = async (req, res, next) => {
@@ -59,9 +61,30 @@ export const escalatePostController = async (req, res, next) => {
 
 export const getUsersController = async (req, res, next) => {
   try {
-    const page  = Math.max(1, parseInt(req.query.page)  || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
-    const result = await getUsersService({ page, limit });
+    const page   = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit  = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const status = req.query.status || 'all';
+    const result = await getUsersService({ page, limit, status });
+    return res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminMetricsController = async (req, res, next) => {
+  try {
+    const result = await getAdminMetricsService();
+    return res.status(200).json({ success: true, ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const adminResendConfirmationController = async (req, res, next) => {
+  try {
+    const result = await adminResendConfirmationService({
+      targetUserId: Number(req.params.userId),
+    });
     return res.status(200).json({ success: true, ...result });
   } catch (error) {
     next(error);
