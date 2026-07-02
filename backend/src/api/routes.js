@@ -9,6 +9,7 @@ import leaderboardRoutes from "./leaderboard/routes/leaderboard.routes.js";
 import userRoutes from "./users/routes/user.routes.js";
 import adminRoutes from "./admin/routes/admin.routes.js";
 import releaseRoutes from "./release/routes/release.routes.js";
+import notificationRoutes from "./notification/routes/notification.routes.js";
 
 export const mainRouter = express.Router();
 
@@ -35,3 +36,5 @@ mainRouter.use("/users", userRoutes);
 mainRouter.use("/admin", adminRoutes);
 // Release / changelog routes
 mainRouter.use("/releases", releaseRoutes);
+// Answer notification routes
+mainRouter.use("/notifications", notificationRoutes);

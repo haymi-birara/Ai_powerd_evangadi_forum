@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { releasesService } from '../../services/releases/releases.service.js';
+import { notificationsService } from '../../services/notifications/notifications.service.js';
 import Navbar from '../Navbar/Navbar.jsx';
 import Sidebar from '../Sidebar/Sidebar.jsx';
 import WhatsNewModal from '../WhatsNewModal/WhatsNewModal.jsx';
+import NotificationsModal from '../NotificationsModal/NotificationsModal.jsx';
 import styles from './Layout.module.css';
 
 /**
@@ -21,25 +23,148 @@ export default function Layout() {
   const [hasUnseen, setHasUnseen] = useState(false); // drives the navbar bell badge
   const checkedUserRef = useRef(null);               // id of the user we last ran the unseen check for
 
-  // On login, check for unseen releases and auto-open the modal if any exist.
-  // Tracking the user id (not a one-shot boolean) means a different user logging
-  // in during the same session gets their own check, and logout resets it.
+  /* ── Answer notifications state (navbar envelope) ── */
+  const [answerNotices, setAnswerNotices] = useState([]);
+  const [moderationNotices, setModerationNotices] = useState({ data: [], standing: null });
+  const [hasUnseenAnswers, setHasUnseenAnswers] = useState(false);
+  const [showAnswersModal, setShowAnswersModal] = useState(false);
+
+  /* ── Mobile sidebar drawer ── */
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Desktop icon-rail collapse + pin. "Pinned" persists the expanded rail across
+  // reloads; when unpinned the sidebar defaults to the collapsed icon rail. The
+  // hamburger expands the rail for the current session (not persisted).
+  const [pinned, setPinned] = useState(
+    () => localStorage.getItem('sidebar-pinned') !== '0'
+  );
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem('sidebar-pinned') === '0'
+  );
+
+  // Hamburger (collapsed rail → expanded), session-only.
+  const handleExpand = () => setCollapsed(false);
+
+  // Close button (expanded → collapsed rail); also unpins so it stays collapsed.
+  const handleCollapse = () => {
+    setCollapsed(true);
+    setPinned(false);
+    localStorage.setItem('sidebar-pinned', '0');
+  };
+
+  // Pin toggle: locks the sidebar open (persisted). Pinning also expands it.
+  const handleTogglePin = () => {
+    setPinned((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebar-pinned', next ? '1' : '0');
+      if (next) setCollapsed(false);
+      return next;
+    });
+  };
+
+  // Close the mobile sidebar whenever the route changes (e.g. a nav link tap).
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Poll for unseen releases (drives the navbar bell badge) so a freshly
+  // published changelog surfaces without a manual refresh. The modal auto-opens
+  // only the first time unseen releases are detected for this user; later polls
+  // just keep the badge in sync. Best-effort; failures are silent.
   useEffect(() => {
     if (!user) { checkedUserRef.current = null; return; }
-    if (checkedUserRef.current === user.id) return;
-    checkedUserRef.current = user.id;
 
-    releasesService
-      .getUnseen()
-      .then(({ data, count }) => {
-        if (count > 0) {
-          setReleases(data);
-          setHasUnseen(true);
-          setShowModal(true);
-        }
-      })
-      .catch(() => {/* non-fatal: changelog is best-effort */});
+    let active = true;
+    const check = () => {
+      releasesService
+        .getUnseen()
+        .then(({ data, count }) => {
+          if (!active) return;
+          if (count > 0) {
+            setReleases(data);
+            setHasUnseen(true);
+            if (checkedUserRef.current !== user.id) {
+              checkedUserRef.current = user.id;
+              setShowModal(true);
+            }
+          } else {
+            setHasUnseen(false);
+          }
+        })
+        .catch(() => {/* non-fatal: changelog is best-effort */});
+    };
+
+    check();
+    const intervalId = setInterval(check, 30000); // 30s
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
   }, [user]);
+
+  // Poll for unseen answers to the user's questions. This only drives the navbar
+  // envelope badge (the "new answers" indicator) — it does NOT touch the list
+  // shown in the modal, so the list never disappears out from under the user.
+  // Best-effort; failures are silent. Re-runs when the logged-in user changes.
+  useEffect(() => {
+    if (!user) { return; }
+
+    let active = true;
+    const check = () => {
+      notificationsService
+        .getUnseenCounts()
+        .then(({ totalCount }) => {
+          if (!active) return;
+          setHasUnseenAnswers(totalCount > 0);
+        })
+        .catch(() => {/* non-fatal: notifications are best-effort */});
+    };
+
+    check();
+    const intervalId = setInterval(check, 30000); // 30s
+
+    // Re-check immediately when the tab regains focus / becomes visible, so a
+    // notification surfaces without waiting for the next poll (no manual refresh).
+    const onFocus = () => check();
+    const onVisible = () => { if (!document.hidden) check(); };
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisible);
+
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [user]);
+
+  // Envelope click: open the notifications modal with the recent answers + upvote
+  // notices (persistent — ignores seen state). Opening clears the badge and marks
+  // everything seen, but the list stays visible so the user can click through.
+  const handleEnvelopeClick = async () => {
+    try {
+      const [answers, votes, moderation] = await Promise.allSettled([
+        notificationsService.getRecentAnswers(),
+        notificationsService.getRecentVotes(),
+        notificationsService.getModerationNotices(),
+      ]);
+      const recentAnswers = answers.status === 'fulfilled' ? answers.value : [];
+      const recentVotes = votes.status === 'fulfilled' ? votes.value : [];
+      const merged = [...recentAnswers, ...recentVotes].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      setAnswerNotices(merged);
+      if (moderation.status === 'fulfilled') setModerationNotices(moderation.value);
+    } catch {/* keep whatever we have */}
+    setShowAnswersModal(true);
+    if (hasUnseenAnswers) {
+      setHasUnseenAnswers(false);
+      notificationsService.markAnswersSeen().catch(() => {});
+      notificationsService.markVotesSeen().catch(() => {});
+    }
+  };
+
+  const handleCloseAnswersModal = () => setShowAnswersModal(false);
 
   // Dismissing the auto-shown modal marks everything seen and clears the badge.
   const handleCloseModal = () => {
@@ -98,16 +223,37 @@ export default function Layout() {
 
   return (
     <div className={styles.layout}>
-      <Sidebar />
-      <div className={styles.layout__content}>
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        collapsed={collapsed}
+        pinned={pinned}
+        onExpand={handleExpand}
+        onCollapse={handleCollapse}
+        onTogglePin={handleTogglePin}
+      />
+      {sidebarOpen && (
+        <div
+          className={styles.layout__backdrop}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <div
+        className={`${styles.layout__content} ${
+          collapsed ? styles['layout__content--collapsed'] : ''
+        }`}
+      >
         <Navbar
           title={getTitle()}
           subtitle={getSubtitle()}
           user={user}
-          onLogout={logout}
           showSearch={location.pathname === '/dashboard'}
           hasUnseenReleases={hasUnseen}
           onBellClick={handleBellClick}
+          hasUnseenAnswers={hasUnseenAnswers}
+          onEnvelopeClick={handleEnvelopeClick}
+          onMenuClick={() => setSidebarOpen(true)}
         />
         <main className={styles.layout__main}>
           <div className={styles.layout__mainInner}>
@@ -147,6 +293,14 @@ export default function Layout() {
 
       {showModal && (
         <WhatsNewModal releases={releases} onClose={handleCloseModal} />
+      )}
+
+      {showAnswersModal && (
+        <NotificationsModal
+          items={answerNotices}
+          moderation={moderationNotices}
+          onClose={handleCloseAnswersModal}
+        />
       )}
     </div>
   );

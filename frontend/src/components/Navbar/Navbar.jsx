@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search, LogOut, Sparkles, Bell } from 'lucide-react';
+import { Search, Sparkles, Bell, Mail, Menu } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 /**
@@ -11,10 +11,12 @@ export default function Navbar({
   title,
   subtitle,
   user,
-  onLogout,
   showSearch = false,
   hasUnseenReleases = false,
   onBellClick,
+  hasUnseenAnswers = false,
+  onEnvelopeClick,
+  onMenuClick,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,6 +79,16 @@ export default function Navbar({
 
   return (
     <header className={styles.navbar}>
+      {onMenuClick && (
+        <button
+          type='button'
+          className={styles.navbar__menu}
+          onClick={onMenuClick}
+          aria-label='Open menu'
+        >
+          <Menu size={22} />
+        </button>
+      )}
       <div className={styles.navbar__titleBlock}>
         <h2 className={styles.navbar__pageTitle}>{title}</h2>
         {subtitle ? (
@@ -116,6 +128,18 @@ export default function Navbar({
       </form>}
 
       <div className={styles.navbar__actions}>
+        {user && onEnvelopeClick && (
+          <button
+            type='button'
+            className={styles.navbar__notification}
+            onClick={onEnvelopeClick}
+            aria-label='Answers to your questions'
+            title='Answers to your questions'
+          >
+            <Mail size={20} />
+            {hasUnseenAnswers && <span className={styles.navbar__badge} aria-hidden="true" />}
+          </button>
+        )}
         {user && onBellClick && (
           <button
             type='button'
@@ -126,34 +150,6 @@ export default function Navbar({
           >
             <Bell size={20} />
             {hasUnseenReleases && <span className={styles.navbar__badge} aria-hidden="true" />}
-          </button>
-        )}
-        <div className={styles.navbar__user}>
-          <span className={styles['navbar__user-name']}>
-            {user ? `${user.firstName} ${user.lastName}` : 'Guest'}
-          </span>
-          <div className={styles['navbar__user-avatar']}>
-            <img
-              src={
-                user?.avatar ||
-                `https://ui-avatars.com/api/?name=${
-                  user?.firstName || 'User'
-                }+${user?.lastName || ''}&background=random`
-              }
-              alt='avatar'
-              referrerPolicy='no-referrer'
-            />
-          </div>
-        </div>
-        {user && (
-          <button
-            type='button'
-            className={styles.navbar__logout}
-            onClick={onLogout}
-            aria-label='Logout'
-            title='Logout'
-          >
-            <LogOut size={20} />
           </button>
         )}
       </div>
