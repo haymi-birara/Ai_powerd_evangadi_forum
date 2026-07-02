@@ -348,6 +348,95 @@
   color: #64748b;
 }
 
+/* Feed header — base (all viewports). Title text and the "Newest threads"
+   button share one row; the button never wraps or drops below. */
+.dashboard__feedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dashboard__feedHeader h3 {
+  margin: 0 0 0.25rem;
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+.dashboard__feedHeader p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.dashboard__feedHeader button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 0.55rem 0.8rem;
+  background: #ea580c;
+  border: 1px solid #ea580c;
+  border-radius: 0.375rem;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Topic filter chips under the feed header */
+.topicBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.9rem 1.25rem 0.15rem;
+}
+
+.topicChip {
+  padding: 0.32rem 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.topicChip:hover,
+.topicChip:focus-visible {
+  border-color: #ea580c;
+  color: #ea580c;
+}
+
+.topicChip--active,
+.topicChip--active:hover,
+.topicChip--active:focus-visible {
+  background: #ea580c;
+  border-color: #ea580c;
+  color: #ffffff;
+}
+
+.chipCount {
+  margin-left: 0.3rem;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+/* Small topic label on each thread card */
+.topicTag {
+  padding: 0.1rem 0.5rem;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  color: #c2410c;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
 @media (min-width: 768px) {
   .statBadge {
     flex-direction: column;
@@ -411,6 +500,16 @@
   border-bottom: 1px solid #fed7aa;
   font-size: 0.8125rem;
   color: #9a3412;
+}
+
+.fallbackNotice {
+  margin: 0;
+  padding: 0.55rem 1rem;
+  background: #f8fafc;
+  border-top: 1px dashed #cbd5e1;
+  border-bottom: 1px dashed #cbd5e1;
+  color: #475569;
+  font-size: 0.79rem;
 }
 
 .clearSearchBtn {
@@ -649,6 +748,10 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
+.topicBar {
+  padding: 1rem 2rem 0.25rem;
+}
+
 .dashboard__feedHeader h3 {
   margin: 0 0 0.25rem;
   color: #0f172a;
@@ -841,14 +944,23 @@
     padding: 1.25rem;
   }
 
-  .dashboard__quickLinks,
-  .dashboard__stats {
+  .dashboard__quickLinks {
     grid-template-columns: 1fr;
   }
 
-  .dashboard__feedHeader {
-    align-items: flex-start;
-    flex-direction: column;
+  /* Keep the analytics figures in a compact grid rather than a single
+     stacked column, to save vertical space on smaller screens. */
+  .dashboard__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .dashboard__stat {
+    padding: 0.75rem;
+  }
+
+  .dashboard__stat strong {
+    font-size: 1.4rem;
   }
 
   .dashboard__feed {
