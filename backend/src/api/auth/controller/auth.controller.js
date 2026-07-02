@@ -4,7 +4,10 @@ import {
   registerService, // Service function to handle user registration logic.
   loginService, // Service function to handle user login logic and token generation.
   confirmEmailService, // Service function to handle email confirmation logic using a token.
+  verifyEmailOtpService, // Service function to confirm email using a 6-digit OTP.
+  resendConfirmationOtpService, // Service function to re-issue a confirmation OTP.
   forgotPasswordService, // Service function to handle forgot password logic and token generation.
+  verifyResetOtpService, // Service function to verify a reset OTP and issue a reset token.
   resetPasswordService, // Service function to handle password reset logic using a token.
 } from '../service/auth.service.js';
 
@@ -69,6 +72,59 @@ export const confirmEmailController = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Handles email confirmation via link (GET) — confirms server-side and redirects to frontend.
+ */
+export const confirmEmailViaLinkController = async (req, res) => {
+  const { token } = req.query;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5001';
+
+  if (!token) {
+    return res.redirect(`${frontendUrl}/#/auth?confirmed=error&message=${encodeURIComponent('No confirmation token provided')}`);
+  }
+
+  try {
+    await confirmEmailService({ token });
+    return res.redirect(`${frontendUrl}/#/auth?confirmed=success`);
+  } catch (err) {
+    return res.redirect(`${frontendUrl}/#/auth?confirmed=error&message=${encodeURIComponent(err.message || 'Confirmation failed')}`);
+  }
+};
+
+/**
+ * Handles email confirmation via a 6-digit OTP.
+ */
+export const verifyEmailOtpController = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    const result = await verifyEmailOtpService({ email, otp });
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Email confirmed successfully.',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Re-sends a confirmation OTP (and link) for an unverified account.
+ */
+export const resendConfirmationController = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await resendConfirmationOtpService({ email });
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'If an unverified account exists for this email, a new code has been sent.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 /** * Handles forgot password requests.
  */
 export const forgotPasswordController = async (req, res, next) => {
@@ -96,6 +152,24 @@ export const resetPasswordController = async (req, res, next) => {
       success: true,
       message:
         'Password reset successful. You can now sign in with your new password.',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Verifies a password-reset OTP and returns a short-lived reset token.
+ */
+export const verifyResetOtpController = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    const result = await verifyResetOtpService({ email, otp });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Code verified. You can now set a new password.',
       data: result,
     });
   } catch (error) {

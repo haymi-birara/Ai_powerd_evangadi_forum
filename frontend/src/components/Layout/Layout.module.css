@@ -119,3 +119,32 @@
     outline-offset: 3px;
     border-radius: var(--radius-sm);
 }
+/* ── Mobile sidebar drawer support ── */
+.layout__backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 45;
+}
+
+@media (max-width: 768px) {
+    .layout__content {
+        margin-left: 0;
+    }
+    .layout__main {
+        padding: var(--spacing-md) var(--spacing-md) var(--spacing-xl);
+    }
+}
+
+@media (min-width: 769px) {
+    .layout__backdrop {
+        display: none;
+    }
+}
+
+/* ── Desktop icon-rail collapse: match content offset to the rail width ── */
+@media (min-width: 769px) {
+    .layout__content--collapsed {
+        margin-left: 4.5rem;
+    }
+}

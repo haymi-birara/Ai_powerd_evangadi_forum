@@ -124,6 +124,27 @@ CREATE TABLE `answer_votes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
+-- 6b. Answer Replies Table
+-- Question-owner replies to answers on their own question. Posting is restricted
+-- to the question owner at the application layer; everyone can read replies.
+-- -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS `answer_replies`;
+CREATE TABLE `answer_replies` (
+    `reply_id` INT AUTO_INCREMENT PRIMARY KEY,
+    `answer_id` INT NOT NULL,
+    `question_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `content` TEXT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (`answer_id`) REFERENCES `answers`(`answer_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`question_id`) REFERENCES `questions`(`question_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
+    INDEX `idx_answer_replies_answer_id` (`answer_id`),
+    INDEX `idx_answer_replies_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -----------------------------------------------------------------------------
 -- 7. Moderation Flags Table
 -- Every Track B (offensive) post flagged by the AI lands here.
 -- The admin queue reads this table. Post remains hidden until reviewed.

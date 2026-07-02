@@ -17,6 +17,8 @@ import {
   parseEmbedding,
   cosineSimilarity,
 } from "../../../utils/vectorUtils.js";
+import { getRepliesForAnswers } from "../../answer/service/reply.service.js";
+import { getCommunityRecognitionByUser } from "../../leaderboard/service/leaderboard.service.js";
 
 const generateQuestionHash = () => {
   return crypto.randomBytes(8).toString("hex");
@@ -510,6 +512,30 @@ export const getSingleQuestionService = async ({ questionHash, viewerId = null }
     },
   }));
 
+  // Attach question-owner replies to each answer (best-effort: never block the
+  // thread render if the replies table is unavailable).
+  let replyMap = {};
+  try {
+    replyMap = await getRepliesForAnswers(answers.map((a) => a.id));
+  } catch (err) {
+    console.error("[replies] Failed to load answer replies:", err.message);
+  }
+  for (const a of answers) {
+    a.replies = replyMap[a.id] || [];
+  }
+
+  // Attach community recognition (leaderboard vote-leader title) to each answer
+  // author so the whole community sees who is leading (best-effort).
+  try {
+    const recognitionMap = await getCommunityRecognitionByUser();
+    for (const a of answers) {
+      a.user.recognition = recognitionMap[a.user.id] || null;
+    }
+  } catch (err) {
+    console.error("[recognition] Failed to load recognition:", err.message);
+    for (const a of answers) a.user.recognition = null;
+  }
+
   return {
     ...question,
     answers,
@@ -564,7 +590,12 @@ export const searchQuestionsSemanticService = async ({
     return {
       data: fallbackData.map(toQuestionWithAuthor),
       aiAnswer,
-      meta: { total: fallbackData.length, k: limit, threshold: searchThreshold },
+      meta: {
+        total: fallbackData.length,
+        k: limit,
+        threshold: searchThreshold,
+        fallback: "lexical",
+      },
     };
   }
 
@@ -577,13 +608,23 @@ export const searchQuestionsSemanticService = async ({
   }
 
   const thresholdMatches = scored.filter((item) => item.score >= searchThreshold);
-  // Strict threshold: if nothing passes, return empty so the AI answer card
-  // explains why — never surface low-score results as "matches".
+  // If nothing passes the semantic threshold, fall back to lexical matches so
+  // users still see clearly relevant threads instead of an empty state.
   if (thresholdMatches.length === 0) {
+    const fallbackData = await searchQuestionsLexicalFallback({
+      query: normalizedQuery,
+      limit,
+    });
+
     return {
-      data: [],
+      data: fallbackData.map(toQuestionWithAuthor),
       aiAnswer,
-      meta: { total: 0, k: limit, threshold: searchThreshold },
+      meta: {
+        total: fallbackData.length,
+        k: limit,
+        threshold: searchThreshold,
+        fallback: "lexical",
+      },
     };
   }
 

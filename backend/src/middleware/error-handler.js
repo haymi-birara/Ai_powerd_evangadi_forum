@@ -35,9 +35,10 @@ export const errorHandler = (err, req, res, next) => {
   // Only surface a code we deliberately set; never echo raw driver codes.
   let code = isAppCode(err?.code) ? err.code : defaultCode;
 
-  // Don't leak internal/driver error text on 5xx — use a safe generic message.
+  // Don't leak internal/driver error text on 5xx. Keep 503 messages because
+  // they are intentionally user-facing service-availability guidance.
   let message =
-    statusCode >= 500
+    statusCode >= 500 && statusCode !== StatusCodes.SERVICE_UNAVAILABLE
       ? "Something went wrong, please try again later"
       : err.message || "Request could not be completed";
 

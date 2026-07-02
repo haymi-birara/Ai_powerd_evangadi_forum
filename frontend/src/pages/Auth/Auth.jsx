@@ -16,6 +16,33 @@ import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/auth/auth.service";
 import styles from "./Auth.module.css";
 
+const buildAuthActionError = (actionLabel, err, fallbackMessage) => {
+  const raw = (err?.message || "").trim();
+  if (!raw) return fallbackMessage;
+
+  if (/invalid email or password/i.test(raw)) {
+    return "Sign in failed because the email or password is incorrect.";
+  }
+
+  if (/cannot reach the server|unable to connect|network/i.test(raw)) {
+    return `${actionLabel} failed because the app could not reach the server. Please check your connection or try again shortly.`;
+  }
+
+  if (/timed out/i.test(raw)) {
+    return `${actionLabel} failed because the request timed out. Please try again.`;
+  }
+
+  if (/too many/i.test(raw)) {
+    return `${actionLabel} failed because there were too many recent attempts. Please wait and try again.`;
+  }
+
+  if (/internal error|server failed|status 5\d\d/i.test(raw)) {
+    return `${actionLabel} failed due to a server error. Please try again in a moment.`;
+  }
+
+  return `${actionLabel} failed: ${raw}`;
+};
+
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,12 +54,15 @@ export default function Auth() {
   const isRegister = authMode === "register";
   const isForgot = authMode === "forgot";
   const isReset = authMode === "reset";
+  const isVerifyEmail = authMode === "verifyEmail";
+  const isResetOtp = authMode === "resetOtp";
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp] = useState("");
   const [resetToken, setResetToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -44,6 +74,8 @@ export default function Auth() {
 
   const confirmTokenFromUrl = searchParams.get("confirmToken");
   const resetTokenFromUrl = searchParams.get("resetToken");
+  const confirmedParam = searchParams.get("confirmed");
+  const confirmedMessage = searchParams.get("message");
 
   useEffect(() => {
     if (!confirmTokenFromUrl) return;
@@ -85,6 +117,26 @@ export default function Auth() {
       cancelled = true;
     };
   }, [confirmTokenFromUrl, setSearchParams]);
+
+  // Handle redirect from backend confirm-email link
+  useEffect(() => {
+    if (!confirmedParam) return;
+    if (confirmedParam === 'success') {
+      setSuccessMessage('Email confirmed successfully. You can now sign in.');
+      setAuthMode('login');
+    } else {
+      setError(confirmedMessage || 'Unable to confirm email.');
+    }
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('confirmed');
+        next.delete('message');
+        return next;
+      },
+      { replace: true },
+    );
+  }, [confirmedParam, confirmedMessage, setSearchParams]);
 
   useEffect(() => {
     if (!resetTokenFromUrl) return;
@@ -173,6 +225,13 @@ export default function Auth() {
       }
     }
 
+    if (isVerifyEmail || isResetOtp) {
+      if (!/^\d{6}$/.test(otp.trim())) {
+        setError("Enter the 6-digit code from your email.");
+        return;
+      }
+    }
+
     if (isReset) {
       if (!resetToken.trim()) {
         setError(
@@ -185,8 +244,8 @@ export default function Auth() {
         setError("New password is required.");
         return;
       }
-      if (newPassword.length < 6) {
-        setError("New password must be at least 6 characters long.");
+      if (newPassword.length < 8) {
+        setError("New password must be at least 8 characters long.");
         return;
       }
       if (newPassword !== confirmNewPassword) {
@@ -221,14 +280,39 @@ export default function Auth() {
         setConfirmationUrl(registerResult.confirmationUrl || null);
         setFirstName("");
         setLastName("");
-        setEmail("");
         setPassword("");
+        // Keep the email so the user can enter the 6-digit code next.
+        setEmail(normalizedEmail);
+        setOtp("");
+        setAuthMode("verifyEmail");
+      } else if (isVerifyEmail) {
+        await authService.verifyEmailOtp({
+          email: normalizedEmail,
+          otp: otp.trim(),
+        });
+        setSuccessMessage("Email confirmed successfully. You can now sign in.");
+        setOtp("");
+        setPassword("");
+        setConfirmationUrl(null);
+        setAuthMode("login");
       } else if (isForgot) {
         const result = await authService.forgotPassword(normalizedEmail);
         setSuccessMessage(
           result.message ||
-            "If an account exists for this email, recovery instructions were sent.",
+            "If an account exists for this email, a reset code was sent.",
         );
+        setEmail(normalizedEmail);
+        setOtp("");
+        setAuthMode("resetOtp");
+      } else if (isResetOtp) {
+        const result = await authService.verifyResetOtp({
+          email: normalizedEmail,
+          otp: otp.trim(),
+        });
+        setResetToken(result.resetToken);
+        setOtp("");
+        setSuccessMessage("Code verified. Set your new password below.");
+        setAuthMode("reset");
       } else if (isReset) {
         await authService.resetPassword({
           token: resetToken.trim(),
@@ -244,7 +328,55 @@ export default function Auth() {
         setAuthMode("login");
       }
     } catch (err) {
-      setError(err.message || "An unexpected error occurred.");
+      const actionLabel = isLogin
+        ? "Sign in"
+        : isRegister
+          ? "Account creation"
+          : isVerifyEmail
+            ? "Email verification"
+            : isForgot
+              ? "Password reset request"
+              : isResetOtp
+                ? "Reset code verification"
+                : "Password reset";
+
+      setError(
+        buildAuthActionError(
+          actionLabel,
+          err,
+          `${actionLabel} failed. Please try again.`,
+        ),
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setError(null);
+    setSuccessMessage(null);
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setError("Email is required to resend a code.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (isResetOtp) {
+        const result = await authService.forgotPassword(normalizedEmail);
+        setSuccessMessage(
+          result.message || "A new reset code has been sent if the account exists.",
+        );
+      } else {
+        const result = await authService.resendConfirmation(normalizedEmail);
+        setSuccessMessage(
+          result.message || "A new confirmation code has been sent.",
+        );
+      }
+      setOtp("");
+    } catch (err) {
+      setError(err.message || "Unable to resend the code.");
     } finally {
       setLoading(false);
     }
@@ -355,18 +487,26 @@ export default function Auth() {
                     ? "Sign in to your account"
                     : isRegister
                       ? "Create an account"
-                      : isForgot
-                        ? "Recover your password"
-                        : "Set a new password"}
+                      : isVerifyEmail
+                        ? "Verify your email"
+                        : isForgot
+                          ? "Recover your password"
+                          : isResetOtp
+                            ? "Enter your reset code"
+                            : "Set a new password"}
                 </h2>
                 <p className={styles.auth__formSubtitle}>
                   {isLogin
                     ? "Enter your email address and password to continue."
                     : isRegister
                       ? "Complete the form below to create your account."
-                      : isForgot
-                        ? "Enter your email and we will send password reset instructions."
-                        : "Choose a new password for your account."}
+                      : isVerifyEmail
+                        ? "Enter the 6-digit code we emailed you, or use the link in that email."
+                        : isForgot
+                          ? "Enter your email and we will send a reset code and link."
+                          : isResetOtp
+                            ? "Enter the 6-digit code we emailed you to continue."
+                            : "Choose a new password for your account."}
                 </p>
               </div>
 
@@ -415,7 +555,37 @@ export default function Auth() {
                       className={styles.auth__input}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      readOnly={isVerifyEmail || isResetOtp}
                     />
+                  </div>
+                )}
+
+                {(isVerifyEmail || isResetOtp) && (
+                  <div className={styles.auth__inputGroup}>
+                    <label htmlFor="otp" className={styles.auth__label}>
+                      6-Digit Code
+                    </label>
+                    <input
+                      id="otp"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      placeholder="000000"
+                      className={styles.auth__input}
+                      value={otp}
+                      onChange={(e) =>
+                        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                      }
+                    />
+                    <button
+                      type="button"
+                      className={styles.auth__inlineLink}
+                      onClick={handleResendCode}
+                      disabled={loading}
+                    >
+                      Resend code
+                    </button>
                   </div>
                 )}
 
@@ -479,7 +649,7 @@ export default function Auth() {
                       <input
                         id="newPassword"
                         type="password"
-                        placeholder="At least 6 characters"
+                        placeholder="At least 8 characters"
                         className={styles.auth__input}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
@@ -537,9 +707,13 @@ export default function Auth() {
                         ? "Sign In"
                         : isRegister
                           ? "Create Account"
-                          : isForgot
-                            ? "Send Recovery Email"
-                            : "Reset Password"}
+                          : isVerifyEmail
+                            ? "Verify Email"
+                            : isForgot
+                              ? "Send Recovery Email"
+                              : isResetOtp
+                                ? "Verify Code"
+                                : "Reset Password"}
                     {!loading && (
                       <ArrowRight
                         size={16}
@@ -563,7 +737,9 @@ export default function Auth() {
                 <p className={styles.auth__formFooterText}>
                   {isLogin && "Don't have an account?"}
                   {isRegister && "Already have an account?"}
-                  {(isForgot || isReset) && "Remembered your password?"}
+                  {isVerifyEmail && "Already verified?"}
+                  {(isForgot || isReset || isResetOtp) &&
+                    "Remembered your password?"}
 
                   {isLogin && (
                     <button
@@ -581,7 +757,10 @@ export default function Auth() {
                       Back to sign in
                     </button>
                   )}
-                  {(isForgot || isReset) && (
+                  {(isForgot ||
+                    isReset ||
+                    isResetOtp ||
+                    isVerifyEmail) && (
                     <button
                       onClick={() => setAuthMode("login")}
                       className={styles.auth__formFooterLink}

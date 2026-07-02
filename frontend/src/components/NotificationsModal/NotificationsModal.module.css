@@ -1,0 +1,123 @@
+/* NotificationsModal — moderation-specific styles */
+
+/* Account standing banner at top of modal (limited / blocked / removed) */
+.standingBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+}
+
+/* Incident count badge used inside the standing banner + section title */
+.incidentBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.1);
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Section label (Moderation notices / Answers & upvotes) */
+.section {
+  padding: 0 1rem 0.5rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  padding: 0.6rem 0 0.35rem;
+  margin: 0;
+}
+
+/* Moderation item list */
+.modList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modItem {
+  padding: 0.7rem 0.875rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.modRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.modType {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+
+.modDecision {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+}
+
+.modCategory {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+.modTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+  text-decoration: none;
+  margin: 0;
+  line-height: 1.35;
+}
+
+a.modTitle:hover {
+  text-decoration: underline;
+  color: #ea580c;
+}
+
+.modPreview {
+  font-size: 0.78rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.modMeta {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin: 0;
+}

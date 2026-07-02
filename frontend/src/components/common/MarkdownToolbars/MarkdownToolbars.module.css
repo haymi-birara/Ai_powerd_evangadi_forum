@@ -68,6 +68,88 @@
   color: var(--text-tertiary);
 }
 
+.rightGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.previewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.5rem;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.previewToggle:hover {
+  color: var(--text-primary);
+  background: var(--surface-container-high);
+}
+
+.previewToggleActive {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.preview {
+  padding: var(--spacing-sm);
+  min-height: 120px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.preview :where(h1, h2, h3, h4) {
+  margin: 0.5em 0 0.3em;
+  line-height: 1.3;
+}
+
+.preview :where(p, ul, ol) {
+  margin: 0 0 0.6em;
+}
+
+.preview code {
+  font-family: monospace;
+  font-size: 0.9em;
+  background: var(--surface-container-high);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+.preview pre {
+  background: var(--surface-container-high);
+  padding: 0.7rem;
+  border-radius: 6px;
+  overflow: auto;
+}
+
+.preview pre code {
+  background: none;
+  padding: 0;
+}
+
+.preview a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.previewEmpty {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
 .contentTextarea {
   width: 100%;
   min-height: 280px;

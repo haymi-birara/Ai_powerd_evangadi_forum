@@ -42,6 +42,13 @@ export class ConflictError extends CustomAPIError {
   }
 }
 
+export class TooManyRequestsError extends CustomAPIError {
+  constructor(message, code) {
+    super(message, code);
+    this.statusCode = StatusCodes.TOO_MANY_REQUESTS; // 429
+  }
+}
+
 export class ServiceUnavailableError extends CustomAPIError {
   constructor(message, code) {
     super(message, code);

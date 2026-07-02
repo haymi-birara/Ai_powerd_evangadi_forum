@@ -41,4 +41,14 @@ async function removeVote(answerId) {
   }
 }
 
-export const answerService = { addVote, removeVote };
+/** Post a question-owner reply to an answer. Returns the created reply. */
+async function postReply(answerId, content) {
+  try {
+    const response = await apiClient.post(`/api/answers/${answerId}/reply`, { content });
+    return response.data?.data || response.data;
+  } catch (error) {
+    throw handleAnswerError(error);
+  }
+}
+
+export const answerService = { addVote, removeVote, postReply };

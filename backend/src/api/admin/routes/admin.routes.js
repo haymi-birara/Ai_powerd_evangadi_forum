@@ -1,7 +1,7 @@
 import express from "express";
 import { param } from "express-validator";
 import { authenticateUser as authenticate } from "../../../middleware/authentication.js";
-import { requireAdmin } from "../../../middleware/admin.js";
+import { requireAdmin, requireAdminOrEvaluator } from "../../../middleware/admin.js";
 import { validationErrorHandler } from "../../../middleware/validation-handler.js";
 import {
   getAdminQueueController,
@@ -12,15 +12,15 @@ import {
   updateUserRoleController,
   deleteUserController,
   getFlagHistoryController,
+  getAdminMetricsController,
+  adminResendConfirmationController,
 } from "../controller/admin.controller.js";
 
 const router = express.Router();
 
-// All admin routes require a valid JWT and admin role.
-router.use(authenticate, requireAdmin);
+// All routes require a valid JWT.
+router.use(authenticate);
 
-// These endpoints act on a moderation_flags.flag_id (a review record), not the
-// underlying question/answer id — hence :flagId.
 const flagIdValidation = [
   param("flagId")
     .isInt({ min: 1 })
@@ -29,36 +29,23 @@ const flagIdValidation = [
   validationErrorHandler,
 ];
 
-// GET  /api/admin/queue
-router.get("/queue", getAdminQueueController);
+const userIdValidation = [
+  param("userId").isInt({ min: 1 }).toInt(),
+  validationErrorHandler,
+];
 
-// POST /api/admin/queue/:flagId/approve
-router.post("/queue/:flagId/approve", flagIdValidation, approvePostController);
+// ── Admin-only routes ────────────────────────────────────────────────────────
+router.get("/metrics",         requireAdmin, getAdminMetricsController);
+router.get("/users",           requireAdmin, getUsersController);
+router.patch("/users/:userId/role",    requireAdmin, userIdValidation, updateUserRoleController);
+router.delete("/users/:userId",        requireAdmin, userIdValidation, deleteUserController);
+router.post("/users/:userId/resend-confirmation", requireAdmin, userIdValidation, adminResendConfirmationController);
 
-// POST /api/admin/queue/:flagId/remove
-router.post("/queue/:flagId/remove", flagIdValidation, removePostController);
-
-// POST /api/admin/queue/:flagId/escalate
-router.post("/queue/:flagId/escalate", flagIdValidation, escalatePostController);
-
-// GET  /api/admin/users
-router.get("/users", getUsersController);
-
-// PATCH /api/admin/users/:userId/role
-router.patch(
-  "/users/:userId/role",
-  [param("userId").isInt({ min: 1 }).toInt(), validationErrorHandler],
-  updateUserRoleController
-);
-
-// DELETE /api/admin/users/:userId
-router.delete(
-  "/users/:userId",
-  [param("userId").isInt({ min: 1 }).toInt(), validationErrorHandler],
-  deleteUserController
-);
-
-// GET /api/admin/flags
-router.get("/flags", getFlagHistoryController);
+// ── Admin or Evaluator routes ────────────────────────────────────────────────
+router.get("/queue",                        requireAdminOrEvaluator, getAdminQueueController);
+router.post("/queue/:flagId/approve",       requireAdminOrEvaluator, flagIdValidation, approvePostController);
+router.post("/queue/:flagId/remove",        requireAdminOrEvaluator, flagIdValidation, removePostController);
+router.post("/queue/:flagId/escalate",      requireAdminOrEvaluator, flagIdValidation, escalatePostController);
+router.get("/flags",                        requireAdminOrEvaluator, getFlagHistoryController);
 
 export default router;

@@ -48,6 +48,33 @@ export const confirmEmailValidation = [
   validationErrorHandler,
 ];
 
+export const verifyEmailOtpValidation = [
+  body('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('A valid email address is required')
+    .normalizeEmail(),
+  body('otp')
+    .notEmpty()
+    .withMessage('Verification code is required')
+    .isLength({ min: 6, max: 6 })
+    .withMessage('Verification code must be 6 digits')
+    .isNumeric()
+    .withMessage('Verification code must be numeric'),
+  validationErrorHandler,
+];
+
+export const resendConfirmationValidation = [
+  body('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('A valid email address is required')
+    .normalizeEmail(),
+  validationErrorHandler,
+];
+
 export const forgotPasswordValidation = [
   body('email')
     .notEmpty()
@@ -55,6 +82,23 @@ export const forgotPasswordValidation = [
     .isEmail()
     .withMessage('A valid email address is required')
     .normalizeEmail(),
+  validationErrorHandler,
+];
+
+export const verifyResetOtpValidation = [
+  body('email')
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('A valid email address is required')
+    .normalizeEmail(),
+  body('otp')
+    .notEmpty()
+    .withMessage('Verification code is required')
+    .isLength({ min: 6, max: 6 })
+    .withMessage('Verification code must be 6 digits')
+    .isNumeric()
+    .withMessage('Verification code must be numeric'),
   validationErrorHandler,
 ];
 

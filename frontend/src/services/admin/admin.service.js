@@ -16,8 +16,17 @@ function handleAdminError(error) {
     case 403: return new Error(backendMessage || 'Admin access required.');
     case 404: return new Error(backendMessage || 'Post not found in queue.');
     case 409: return new Error(backendMessage || 'This post has already been actioned.');
-    case 500: return new Error('Something went wrong on our end. Please try again later.');
+    case 500: return new Error(`Server error processing this request. Please try again.`);
     default:  return new Error(backendMessage || 'An unexpected error occurred.');
+  }
+}
+
+async function getMetrics() {
+  try {
+    const response = await apiClient.get('/api/admin/metrics');
+    return response.data;
+  } catch (error) {
+    throw handleAdminError(error);
   }
 }
 
@@ -57,9 +66,9 @@ async function escalatePost(postId) {
   }
 }
 
-async function getUsers({ page = 1, limit = 20 } = {}) {
+async function getUsers({ page = 1, limit = 20, status = 'all' } = {}) {
   try {
-    const response = await apiClient.get('/api/admin/users', { params: { page, limit } });
+    const response = await apiClient.get('/api/admin/users', { params: { page, limit, status } });
     return response.data;
   } catch (error) {
     throw handleAdminError(error);
@@ -93,4 +102,24 @@ async function deleteUser(userId) {
   }
 }
 
-export const adminService = { getQueue, approvePost, removePost, escalatePost, getUsers, updateUserRole, deleteUser, getFlagHistory };
+async function resendUserConfirmation(userId) {
+  try {
+    const response = await apiClient.post(`/api/admin/users/${userId}/resend-confirmation`);
+    return response.data;
+  } catch (error) {
+    throw handleAdminError(error);
+  }
+}
+
+export const adminService = {
+  getMetrics,
+  getQueue,
+  approvePost,
+  removePost,
+  escalatePost,
+  getUsers,
+  updateUserRole,
+  deleteUser,
+  getFlagHistory,
+  resendUserConfirmation,
+};

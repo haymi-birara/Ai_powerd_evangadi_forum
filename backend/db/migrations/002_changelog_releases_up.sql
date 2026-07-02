@@ -39,85 +39,88 @@ ALTER TABLE `users`
 -- -------------------------------------------------------------------------
 -- Seed the changelog with the project's release history.
 -- Inserted oldest-first so release_id increases with the release date.
+-- Highlights are inserted as plain JSON strings (not CAST(... AS JSON)) so the
+-- seed works on both MySQL 8 and MariaDB — MariaDB has no JSON cast and would
+-- reject the whole INSERT, silently leaving the changelog empty.
 -- Dates are anchored to when each milestone landed in git history.
 -- -------------------------------------------------------------------------
 INSERT INTO `releases` (`version`, `title`, `highlights`, `published_at`, `is_published`) VALUES
 (
   '0.1.0',
   'Forum foundation',
-  CAST('[
+  '[
     {"category":"new","text":"Sign up and log in, with email confirmation and password recovery."},
     {"category":"new","text":"Ask questions and post answers in a threaded discussion view."},
     {"category":"new","text":"Personal dashboard and a Your topics page to track your own questions."}
-  ]' AS JSON),
+  ]',
   '2026-06-14 12:00:00',
   1
 ),
 (
   '0.2.0',
   'Semantic search',
-  CAST('[
+  '[
     {"category":"new","text":"Search finds questions by meaning, not just exact keywords."},
     {"category":"new","text":"Each thread now suggests similar questions."}
-  ]' AS JSON),
+  ]',
   '2026-06-16 12:00:00',
   1
 ),
 (
   '0.3.0',
   'More reliable email',
-  CAST('[
+  '[
     {"category":"improved","text":"Transactional email now goes through Resend for reliable delivery."},
     {"category":"fixed","text":"Author names now render correctly on every answer."}
-  ]' AS JSON),
+  ]',
   '2026-06-18 12:00:00',
   1
 ),
 (
   '0.4.0',
   'AI Search & sharing',
-  CAST('[
+  '[
     {"category":"new","text":"AI Search returns a written answer alongside matching threads."},
     {"category":"new","text":"Share any question with a one-click copy link."},
     {"category":"improved","text":"Faster search thanks to an in-memory embedding cache."},
     {"category":"fixed","text":"Search falls back to keyword results instead of failing when AI is unavailable."}
-  ]' AS JSON),
+  ]',
   '2026-06-20 12:00:00',
   1
 ),
 (
   '0.5.0',
   'Community & reputation',
-  CAST('[
+  '[
     {"category":"new","text":"Upvote the answers you find most helpful."},
     {"category":"new","text":"Earn a trust score as your contributions get upvoted."},
     {"category":"new","text":"Monthly and all-time leaderboards for top contributors."},
     {"category":"new","text":"Public user profiles with badges and contribution stats."}
-  ]' AS JSON),
+  ]',
   '2026-06-21 12:00:00',
   1
 ),
 (
   '1.0.0',
   'Admin panel',
-  CAST('[
+  '[
     {"category":"new","text":"Unified admin panel with a moderation queue, flag activity, and user management."},
     {"category":"new","text":"Role-based access control so only admins can moderate."}
-  ]' AS JSON),
+  ]',
   '2026-06-22 09:00:00',
   1
 ),
 (
   '1.1.0',
   'Smarter moderation & duplicate detection',
-  CAST('[
+  '[
     {"category":"new","text":"AI moderation now reviews every question and answer before it is published."},
     {"category":"new","text":"Off-topic posts get an instant explanation plus an option to ask the AI directly."},
     {"category":"new","text":"Spam and harassment are automatically flagged for admin review."},
     {"category":"new","text":"Duplicate detection warns you when a very similar question already exists, with a Post anyway option."},
     {"category":"improved","text":"Posting a question now takes you straight to the published thread."},
     {"category":"fixed","text":"Admin Flag Activity filters (Pending / Approved / Removed) now load correctly."}
-  ]' AS JSON),
+  ]',
   '2026-06-22 15:00:00',
   1
 );

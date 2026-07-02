@@ -57,8 +57,17 @@ export async function sendMail({ to, subject, html, text }) {
 /**
  * Send a registration confirmation email.
  */
-export async function sendConfirmationEmail({ to, firstName, confirmationUrl }) {
+export async function sendConfirmationEmail({ to, firstName, confirmationUrl, otp }) {
   const subject = 'Confirm your Evangadi Forum account';
+
+  const otpBlock = otp
+    ? `
+                  <div style="margin:28px 0 4px;padding:20px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;text-align:center;">
+                    <p style="margin:0 0 8px;font-size:13px;color:#64748b;">Or enter this 6-digit code:</p>
+                    <p style="margin:0;font-size:30px;font-weight:700;letter-spacing:8px;color:#0f172a;font-family:'Courier New',monospace;">${otp}</p>
+                    <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">This code expires in 15 minutes.</p>
+                  </div>`
+    : '';
 
   const html = `
     <!DOCTYPE html>
@@ -112,6 +121,8 @@ export async function sendConfirmationEmail({ to, firstName, confirmationUrl }) 
                     <a href="${confirmationUrl}" style="color:#f97316;word-break:break-all;">${confirmationUrl}</a>
                   </p>
 
+                  ${otpBlock}
+
                   <p style="margin:16px 0 0;font-size:13px;color:#94a3b8;">
                     This link expires in 24 hours. If you didn't create an account, you can safely ignore this email.
                   </p>
@@ -140,8 +151,17 @@ export async function sendConfirmationEmail({ to, firstName, confirmationUrl }) 
 /**
  * Send a password reset email.
  */
-export async function sendPasswordResetEmail({ to, firstName, resetUrl }) {
+export async function sendPasswordResetEmail({ to, firstName, resetUrl, otp }) {
   const subject = 'Reset your Evangadi Forum password';
+
+  const otpBlock = otp
+    ? `
+                  <div style="margin:28px 0 4px;padding:20px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;text-align:center;">
+                    <p style="margin:0 0 8px;font-size:13px;color:#64748b;">Or enter this 6-digit code:</p>
+                    <p style="margin:0;font-size:30px;font-weight:700;letter-spacing:8px;color:#0f172a;font-family:'Courier New',monospace;">${otp}</p>
+                    <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">This code expires in 15 minutes.</p>
+                  </div>`
+    : '';
 
   const html = `
     <!DOCTYPE html>
@@ -187,6 +207,8 @@ export async function sendPasswordResetEmail({ to, firstName, resetUrl }) {
                     If the button doesn't work, copy and paste this link into your browser:<br />
                     <a href="${resetUrl}" style="color:#f97316;word-break:break-all;">${resetUrl}</a>
                   </p>
+
+                  ${otpBlock}
 
                   <p style="margin:16px 0 0;font-size:13px;color:#94a3b8;">
                     If you didn't request a password reset, you can safely ignore this email.

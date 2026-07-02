@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import MarkdownToolbar from "../../components/common/MarkdownToolbars/MarkdownToolbars.jsx";
-import { MessageSquare, ArrowLeft, Share2, ThumbsUp ,Check} from "lucide-react";
+import { MessageSquare, ArrowLeft, Share2, ThumbsUp ,Check, X, Trophy, Crown, Medal} from "lucide-react";
 import { questionService } from "../../services/question/question.service.js";
 import { answerService } from "../../services/answer/answer.service.js";
 import styles from "./QuestionDetail.module.css";
@@ -15,10 +15,47 @@ const markdownComponents = {
   ),
 };
 
+// Map a community-recognition title to a badge tier (drives icon + colour), so
+// the badge visibly reflects the member's current standing.
+const recognitionTier = (title = "") => {
+  if (/year/i.test(title)) return "year";        // Champion of the Year
+  if (/champion/i.test(title)) return "gold";    // Community Champion / N× Champion
+  if (/top contributor/i.test(title)) return "silver";
+  if (/rising star/i.test(title)) return "bronze";
+  return "gold";
+};
+
+// Icon per tier, matching the leaderboard rank icons: Trophy for #1 (gold),
+// Medal for #2/#3 (silver/bronze), Crown for the yearly champion.
+const recognitionIcon = (tier, size = 16) => {
+  if (tier === "year") return <Crown size={size} />;
+  if (tier === "gold") return <Trophy size={size} />;
+  return <Medal size={size} />;
+};
+
 const fitLabelFromScore = (score) => {
   if (score >= 80) return "strong";
   if (score >= 55) return "partial";
   return "weak";
+};
+
+const buildActionErrorMessage = (actionLabel, err, fallbackMessage) => {
+  const raw = (err?.message || "").trim();
+  if (!raw) return fallbackMessage;
+
+  if (/cannot reach the server|unable to connect|network/i.test(raw)) {
+    return `${actionLabel} failed because the app could not reach the server. Please check your connection or try again shortly.`;
+  }
+
+  if (/timed out/i.test(raw)) {
+    return `${actionLabel} failed because the request timed out. Please try again.`;
+  }
+
+  if (/internal error|server failed|status 5\d\d/i.test(raw)) {
+    return `${actionLabel} failed due to a server error. Please try again in a moment.`;
+  }
+
+  return `${actionLabel} failed: ${raw}`;
 };
 
 export default function QuestionDetail() {
@@ -41,6 +78,11 @@ export default function QuestionDetail() {
   const [answerUnderReview, setAnswerUnderReview] = useState(false);
   const [answerRejection, setAnswerRejection] = useState(null); // { reason, guidance }
   const [isCopied, setIsCopied] = useState(false);
+  const [showAnsweredBanner, setShowAnsweredBanner] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyPosting, setReplyPosting] = useState(false);
+  const [replyError, setReplyError] = useState(null);
   const isOwnQuestion =
     question && user ? Number(question.userId) === Number(user.id) : false;
 
@@ -66,7 +108,13 @@ export default function QuestionDetail() {
         setRelatedQuestions(similarResult || []);
       } catch (err) {
         if (!isMounted) return;
-        setError(err.message || "Failed to load question details.");
+        setError(
+          buildActionErrorMessage(
+            "Loading question details",
+            err,
+            "Could not load question details. Please refresh and try again.",
+          ),
+        );
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -78,6 +126,18 @@ export default function QuestionDetail() {
       isMounted = false;
     };
   }, [questionHash]);
+
+  // Show a one-time "answered" banner to the owner: appears the first time they
+  // open their answered question, then is remembered (per question) so it
+  // disappears on subsequent visits.
+  useEffect(() => {
+    if (!question || !isOwnQuestion) return;
+    if (!(question.answers || []).length) return;
+    const key = `answered-banner-seen:${question.questionHash}`;
+    if (localStorage.getItem(key)) return;
+    setShowAnsweredBanner(true);
+    localStorage.setItem(key, "1");
+  }, [question, isOwnQuestion]);
 
 // const triggerToast = msg => {
 //   setToastMessage(prev => (prev === msg ? `${msg} ` : msg));
@@ -110,7 +170,13 @@ export default function QuestionDetail() {
         level: fitLabelFromScore(result.score),
       });
     } catch (err) {
-      setSubmitError(err.message || "Failed to check answer fit.");
+      setSubmitError(
+        buildActionErrorMessage(
+          "Checking draft fit",
+          err,
+          "Could not check draft fit. Please try again.",
+        ),
+      );
     } finally {
       setIsCheckingFit(false);
     }
@@ -132,10 +198,61 @@ export default function QuestionDetail() {
             : a
         ),
       }));
+
+      // A vote can change the community standings, so refresh recognition badges
+      // live (without disrupting inline reply editors or other local state).
+      try {
+        const fresh = await questionService.getSingleQuestion(questionHash);
+        const recognitionById = new Map(
+          (fresh.answers || []).map((a) => [a.id, a.user?.recognition ?? null])
+        );
+        setQuestion((prev) => ({
+          ...prev,
+          answers: prev.answers.map((a) =>
+            a.user
+              ? { ...a, user: { ...a.user, recognition: recognitionById.get(a.id) ?? null } }
+              : a
+          ),
+        }));
+      } catch {/* badge refresh is best-effort */}
     } catch (err) {
       setSubmitError(err.message || 'Could not register vote.');
     } finally {
       setVotingAnswerId(null);
+    }
+  };
+
+  // Toggle the inline reply editor for a given answer (any logged-in user).
+  const handleToggleReply = (answerId) => {
+    setReplyError(null);
+    setReplyText("");
+    setReplyingTo((prev) => (prev === answerId ? null : answerId));
+  };
+
+  const handlePostReply = async (answerId) => {
+    const content = replyText.trim();
+    if (content.length < 2) {
+      setReplyError("Reply must be at least 2 characters.");
+      return;
+    }
+    setReplyPosting(true);
+    setReplyError(null);
+    try {
+      const reply = await answerService.postReply(answerId, content);
+      setQuestion((prev) => ({
+        ...prev,
+        answers: prev.answers.map((a) =>
+          a.id === answerId
+            ? { ...a, replies: [...(a.replies || []), reply] }
+            : a
+        ),
+      }));
+      setReplyText("");
+      setReplyingTo(null);
+    } catch (err) {
+      setReplyError(err.message || "Failed to post reply. Please try again.");
+    } finally {
+      setReplyPosting(false);
     }
   };
 
@@ -173,7 +290,13 @@ export default function QuestionDetail() {
       if (err.code === 'CONTENT_MODERATION_REJECTED') {
         setAnswerRejection({ reason: err.message, guidance: err.guidance });
       } else {
-        setSubmitError(err.message || 'Failed to post answer. Please try again.');
+        setSubmitError(
+          buildActionErrorMessage(
+            "Posting your answer",
+            err,
+            "Could not post your answer. Please try again.",
+          ),
+        );
       }
     } finally {
       setIsPosting(false);
@@ -262,7 +385,10 @@ export default function QuestionDetail() {
               <p className={styles.postedAt}>
                 Posted{" "}
                 {question.createdAt
-                  ? new Date(question.createdAt).toLocaleDateString()
+                  ? new Date(question.createdAt).toLocaleString([], {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })
                   : "recently"}
               </p>
             </div>
@@ -297,7 +423,21 @@ export default function QuestionDetail() {
             </span>
           </div>
         </section>
-          
+
+        {showAnsweredBanner && (
+          <div className={styles.answeredBanner} role="status">
+            <Check size={16} />
+            <span>Your question has been answered — see the replies below.</span>
+            <button
+              type="button"
+              className={styles.answeredBannerClose}
+              onClick={() => setShowAnsweredBanner(false)}
+              aria-label="Dismiss"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         <section className={styles.answersSection}>
           <h2 className={styles.sectionTitle}>
@@ -328,10 +468,22 @@ export default function QuestionDetail() {
                       <p className={styles.answerAuthor}>
                         {answer.user?.firstName || answer.author?.firstName}{" "}
                         {answer.user?.lastName || answer.author?.lastName}
+                        {answer.user?.recognition && (
+                          <span
+                            className={`${styles.answerRecognition} ${styles[`answerRecognition--${recognitionTier(answer.user.recognition)}`]}`}
+                            title={`${answer.user.recognition} — community vote leader`}
+                            aria-label={answer.user.recognition}
+                          >
+                            {recognitionIcon(recognitionTier(answer.user.recognition))}
+                          </span>
+                        )}
                       </p>
                       <p className={styles.answerDate}>
                         {answer.createdAt
-                          ? new Date(answer.createdAt).toLocaleDateString()
+                          ? new Date(answer.createdAt).toLocaleString([], {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })
                           : "Recently"}
                       </p>
                     </div>
@@ -352,7 +504,81 @@ export default function QuestionDetail() {
                       <ThumbsUp size={14} />
                       <span>{answer.voteCount ?? 0}</span>
                     </button>
+                    {user && (
+                      <button
+                        type="button"
+                        className={styles.replyToggle}
+                        onClick={() => handleToggleReply(answer.id)}
+                      >
+                        <MessageSquare size={14} />
+                        <span>Reply</span>
+                      </button>
+                    )}
                   </div>
+
+                  {(answer.replies?.length > 0 || replyingTo === answer.id) && (
+                    <div className={styles.replySection}>
+                      {answer.replies?.length > 0 && (
+                        <ul className={styles.replyList}>
+                          {answer.replies.map((reply) => (
+                            <li key={reply.id} className={styles.replyItem}>
+                              <div className={styles.replyHeader}>
+                                <span className={styles.replyAuthor}>
+                                  {reply.user?.firstName} {reply.user?.lastName}
+                                </span>
+                                {Number(reply.user?.id) === Number(question?.userId) && (
+                                  <span className={styles.replyBadge}>Author</span>
+                                )}
+                                <span className={styles.replyDate}>
+                                  {reply.createdAt
+                                    ? new Date(reply.createdAt).toLocaleDateString()
+                                    : "Recently"}
+                                </span>
+                              </div>
+                              <div className={styles.replyBody}>
+                                <ReactMarkdown components={markdownComponents}>
+                                  {reply.content}
+                                </ReactMarkdown>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {user && replyingTo === answer.id && (
+                        <div className={styles.replyForm}>
+                          <textarea
+                            className={styles.replyTextarea}
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Write a reply to this answer…"
+                            rows={3}
+                          />
+                          {replyError && (
+                            <p className={styles.replyError}>{replyError}</p>
+                          )}
+                          <div className={styles.replyActions}>
+                            <button
+                              type="button"
+                              className={styles.replyCancel}
+                              onClick={() => handleToggleReply(answer.id)}
+                              disabled={replyPosting}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.replySubmit}
+                              onClick={() => handlePostReply(answer.id)}
+                              disabled={replyPosting}
+                            >
+                              {replyPosting ? "Posting…" : "Post reply"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </article>
               ))}
             </div>
@@ -435,7 +661,8 @@ export default function QuestionDetail() {
                   className={`${styles.fitPanel} ${styles[`fitPanel--${fitResult.level}`]}`}
                 >
                   <p className={styles.fitHeading}>
-                   {fitResult.level} FIT
+                    
+                   {fitResult.level.toUpperCase()} FIT
                   </p>
                   <p className={styles.fitNote}>{fitResult.note}</p>
                 </div>
@@ -465,7 +692,10 @@ export default function QuestionDetail() {
                   </span>
                   <span>
                     {item.createdAt
-                      ? new Date(item.createdAt).toLocaleDateString()
+                      ? new Date(item.createdAt).toLocaleString([], {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        })
                       : ""}
                   </span>
                 </div>

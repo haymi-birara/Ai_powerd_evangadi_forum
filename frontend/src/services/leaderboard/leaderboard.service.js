@@ -35,4 +35,14 @@ async function getAllTimeLeaderboard() {
   }
 }
 
-export const leaderboardService = { getMonthlyLeaderboard, getAllTimeLeaderboard };
+async function getLastMonthLeaderboard() {
+  try {
+    const response = await apiClient.get('/api/leaderboard/last-month');
+    // Backend shape: { success, period, data[] }.
+    return { period: response.data?.period ?? null, data: response.data?.data ?? [] };
+  } catch (error) {
+    throw handleLeaderboardError(error);
+  }
+}
+
+export const leaderboardService = { getMonthlyLeaderboard, getLastMonthLeaderboard, getAllTimeLeaderboard };

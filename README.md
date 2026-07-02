@@ -203,7 +203,7 @@ Copy `backend/.env.example` and fill in all **Required** values before starting 
 ### 1. Clone
 
 ```bash
-git clone https://github.com/desta-getaw/ai-powered-forum-project.git
+git clone https://github.com/Kingspark/ai-powered-disc-forum.git
 cd ai-powered-forum-project
 ```
 

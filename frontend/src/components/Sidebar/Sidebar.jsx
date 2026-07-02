@@ -1,7 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, MessageSquare, FileText, Trophy, Settings } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, FileText, Trophy, Settings, X, Plus, Menu, Pin, PinOff, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import styles from './Sidebar.module.css';
+
+const ROLE_LABELS = { admin: 'Admin', evaluator: 'Evaluator', user: 'Learner' };
+const roleLabel = (role) => ROLE_LABELS[role] ?? 'Learner';
 
 const BASE_NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Home',           path: '/dashboard' },
@@ -10,17 +13,70 @@ const BASE_NAV_ITEMS = [
   { icon: Trophy,          label: 'Leaderboard',    path: '/leaderboard' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = false, onClose, collapsed = false, pinned = false, onExpand, onCollapse, onTogglePin }) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const navItems = user?.role === 'admin'
+  const navItems = ['admin', 'evaluator'].includes(user?.role)
     ? [...BASE_NAV_ITEMS, { icon: Settings, label: 'Admin', path: '/admin' }]
     : BASE_NAV_ITEMS;
 
   return (
-    <aside className={styles.sidebar}>
+    <aside
+      className={`${styles.sidebar} ${isOpen ? styles['sidebar--open'] : ''} ${
+        collapsed ? styles['sidebar--collapsed'] : ''
+      }`}
+    >
       <div className={styles.sidebar__header}>
+        {onClose && (
+          <button
+            type='button'
+            className={styles.sidebar__close}
+            onClick={onClose}
+            aria-label='Close menu'
+          >
+            <X size={20} />
+          </button>
+        )}
+        {collapsed && onExpand && (
+          <button
+            type='button'
+            className={styles.sidebar__expandToggle}
+            onClick={onExpand}
+            aria-label='Expand sidebar'
+            title='Expand sidebar'
+          >
+            <Menu size={20} />
+          </button>
+        )}
+        {!collapsed && (onTogglePin || onCollapse) && (
+          <div className={styles.sidebar__headerControls}>
+            {onTogglePin && (
+              <button
+                type='button'
+                className={`${styles.sidebar__iconBtn} ${
+                  pinned ? styles['sidebar__iconBtn--active'] : ''
+                }`}
+                onClick={onTogglePin}
+                aria-label={pinned ? 'Unpin sidebar' : 'Pin sidebar open'}
+                title={pinned ? 'Unpin sidebar' : 'Pin sidebar open'}
+              >
+                {pinned ? <Pin size={16} /> : <PinOff size={16} />}
+              </button>
+            )}
+            {onCollapse && (
+              <button
+                type='button'
+                className={styles.sidebar__iconBtn}
+                onClick={onCollapse}
+                aria-label='Collapse sidebar'
+                title='Collapse sidebar'
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        )}
         <div
           className={styles.sidebar__branding}
           onClick={() => navigate('/')}
@@ -83,8 +139,10 @@ export default function Sidebar() {
           type='button'
           onClick={() => navigate('/questions/ask')}
           className={styles.sidebar__button}
+          title='New Question'
         >
-          New Question
+          <Plus size={18} className={styles.sidebar__buttonIcon} />
+          <span className={styles.sidebar__buttonText}>New Question</span>
         </button>
 
         <div className={styles.sidebar__user}>
@@ -106,7 +164,7 @@ export default function Sidebar() {
               <p className={styles.sidebar__name}>
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className={styles.sidebar__role}>Learner</p>
+              <p className={styles.sidebar__role}>{roleLabel(user?.role)}</p>
             </div>
           </div>
 
@@ -114,9 +172,11 @@ export default function Sidebar() {
             type='button'
             onClick={logout}
             className={styles.sidebar__logout}
+            title='Sign out'
+            aria-label='Sign out'
           >
-            <LogOut size={16} />
-            <span>Logout</span>
+            <LogOut size={18} className={styles.sidebar__logoutIcon} />
+            <span className={styles.sidebar__logoutText}>Sign out</span>
           </button>
         </div>
       </div>
