@@ -16,6 +16,33 @@ import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/auth/auth.service";
 import styles from "./Auth.module.css";
 
+const buildAuthActionError = (actionLabel, err, fallbackMessage) => {
+  const raw = (err?.message || "").trim();
+  if (!raw) return fallbackMessage;
+
+  if (/invalid email or password/i.test(raw)) {
+    return "Sign in failed because the email or password is incorrect.";
+  }
+
+  if (/cannot reach the server|unable to connect|network/i.test(raw)) {
+    return `${actionLabel} failed because the app could not reach the server. Please check your connection or try again shortly.`;
+  }
+
+  if (/timed out/i.test(raw)) {
+    return `${actionLabel} failed because the request timed out. Please try again.`;
+  }
+
+  if (/too many/i.test(raw)) {
+    return `${actionLabel} failed because there were too many recent attempts. Please wait and try again.`;
+  }
+
+  if (/internal error|server failed|status 5\d\d/i.test(raw)) {
+    return `${actionLabel} failed due to a server error. Please try again in a moment.`;
+  }
+
+  return `${actionLabel} failed: ${raw}`;
+};
+
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -301,7 +328,25 @@ export default function Auth() {
         setAuthMode("login");
       }
     } catch (err) {
-      setError(err.message || "An unexpected error occurred.");
+      const actionLabel = isLogin
+        ? "Sign in"
+        : isRegister
+          ? "Account creation"
+          : isVerifyEmail
+            ? "Email verification"
+            : isForgot
+              ? "Password reset request"
+              : isResetOtp
+                ? "Reset code verification"
+                : "Password reset";
+
+      setError(
+        buildAuthActionError(
+          actionLabel,
+          err,
+          `${actionLabel} failed. Please try again.`,
+        ),
+      );
     } finally {
       setLoading(false);
     }

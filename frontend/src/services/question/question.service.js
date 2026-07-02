@@ -6,10 +6,10 @@ import { apiClient } from '../core/api.client.js';
 function handleQuestionError(error) {
   if (!error.response) {
     if (error.code === 'ECONNABORTED') {
-      return new Error('Request timed out. Please try again.');
+      return new Error('Request timed out. The server took too long to respond. Please try again.');
     }
     return new Error(
-      'Unable to connect to server. Please check your internet connection.',
+      'Cannot reach the server. This is usually a network issue or the API is down.',
     );
   }
 
@@ -26,6 +26,7 @@ function handleQuestionError(error) {
   const existingTitle   = error.response.data?.error?.existingQuestionTitle;
   const similarHash     = error.response.data?.error?.similarQuestionHash;
   const similarTitle    = error.response.data?.error?.similarQuestionTitle;
+  const url = error.config?.url || 'this request';
 
   const make = (msg) => {
     const e = new Error(msg);
@@ -44,11 +45,44 @@ function handleQuestionError(error) {
     case 401:
       return make(backendMessage || 'Unauthorized. Please log in again.');
     case 403:
-      return make(backendMessage || 'Action not permitted.');
+      return make(backendMessage || 'You do not have permission to perform this action.');
+    case 404:
+      return make(
+        backendMessage ||
+          'The requested resource was not found. It may have been removed or the link is invalid.',
+      );
+    case 409:
+      return make(
+        backendMessage ||
+          'This action conflicts with the current data state. Refresh and try again.',
+      );
+    case 422:
+      return make(
+        backendMessage ||
+          'Your submission could not be processed due to validation rules. Please review the input and try again.',
+      );
+    case 429:
+      return make(
+        backendMessage ||
+          'Too many requests in a short time. Please wait a moment and try again.',
+      );
     case 500:
-      return make('Something went wrong on our end. Please try again later.');
+      return make(
+        backendMessage ||
+          `The server failed while processing ${url}. Please try again shortly.`,
+      );
+    case 502:
+    case 503:
+    case 504:
+      return make(
+        backendMessage ||
+          'The service is temporarily unavailable. Please try again in a moment.',
+      );
     default:
-      return make(backendMessage || 'An unexpected error occurred.');
+      return make(
+        backendMessage ||
+          `Request failed with status ${status}. Please try again.`,
+      );
   }
 }
 
@@ -163,7 +197,7 @@ async function generateQuestionDraftCoach(draftData) {
 
 /**
  * Performs AI semantic search on questions using vector similarity.
- * Returns { data: Question[], aiAnswer: string | null }
+ * Returns { data: Question[], aiAnswer: string | null, meta: object | null }
  * @param {string} query
  * @param {{ k?: number, threshold?: number }} options
  */
@@ -175,6 +209,7 @@ async function searchQuestionsSemantic(query, { k = 5, threshold = 0.75 } = {}) 
     return {
       data: response.data?.data || [],
       aiAnswer: response.data?.aiAnswer || null,
+      meta: response.data?.meta || null,
     };
   } catch (error) {
     throw handleQuestionError(error);

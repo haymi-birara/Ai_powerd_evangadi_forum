@@ -25,6 +25,9 @@
     padding-bottom: var(--spacing-md);
     margin-bottom: var(--spacing-md);
     border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
 }
 
 /* Element: sidebar__branding */
@@ -143,13 +146,15 @@
     text-decoration: none;
 }
 
-/* Modifier: sidebar__link--active (left rail + light surface, not full pill) */
+/* Modifier: sidebar__link--active (soft orange wash + left rail on expanded) */
 .sidebar__link--active {
-    background-color: var(--surface-container-low);
+    background-image: linear-gradient(90deg, rgba(249, 115, 22, 0.18) 0%, rgba(249, 115, 22, 0.06) 100%);
+    background-color: transparent;
     color: var(--text-primary);
     font-weight: var(--font-semibold);
 }
 
+/* Orange left-rail indicator — only in the expanded sidebar (hidden when collapsed) */
 .sidebar__link--active::before {
     content: '';
     position: absolute;
@@ -315,32 +320,239 @@
     color: var(--primary);
 }
 
-/* Element: sidebar__logout */
+/* Element: sidebar__logout (moved from navbar; sits under the profile) */
 .sidebar__logout {
     width: 100%;
-    padding-left: 0.5rem;
-    /* 2 * 0.25rem = 0.5rem */
-    padding-right: 0.5rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    /* 3 * 0.25rem = 0.75rem */
-    color: rgba(239, 68, 68, 0.8);
-    /* text-red-500/80 */
+    justify-content: center;
+    gap: 0.5rem;
+    color: rgba(239, 68, 68, 0.9);
+    /* text-red-500/90 */
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
     transition: all var(--transition-base, 200ms ease-in-out);
-    font-size: 0.75rem;
-    /* text-xs */
+    font-size: var(--text-sm);
     font-weight: var(--font-medium, 500);
-    background: none;
-    border: none;
     cursor: pointer;
     text-align: left;
+}
+
+.sidebar__logoutIcon {
+    flex-shrink: 0;
 }
 
 /* Pseudo-class: hover state for logout button */
 .sidebar__logout:hover {
     color: rgb(239, 68, 68);
     /* text-red-500 */
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+/* ── Collapsible / off-canvas behavior ── */
+.sidebar__close {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        box-shadow: 0 0 40px rgba(15, 23, 42, 0.25);
+    }
+    .sidebar--open {
+        transform: translateX(0);
+    }
+    .sidebar__close {
+        position: absolute;
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        border-radius: var(--radius-full);
+        cursor: pointer;
+    }
+    .sidebar__close:hover {
+        background: var(--surface-hover);
+        color: var(--primary);
+    }
+}
+
+/* Header toggles (desktop only; hidden on mobile off-canvas) */
+.sidebar__expandToggle,
+.sidebar__headerControls {
+    display: none;
+}
+
+.sidebar__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.sidebar__buttonIcon {
+    flex-shrink: 0;
+}
+
+@media (min-width: 769px) {
+    /* Pin + close controls, on their own right-aligned row below the branding */
+    .sidebar__headerControls {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        align-self: flex-end;
+        z-index: 2;
+    }
+
+    .sidebar__iconBtn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-secondary);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: color var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    .sidebar__iconBtn:hover {
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+    .sidebar__iconBtn--active {
+        color: var(--primary);
+        border-color: var(--primary);
+        background: var(--primary-light, rgba(249, 115, 22, 0.12));
+    }
+
+    /* Hamburger that expands the collapsed rail — sits above the logo */
+    .sidebar__expandToggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-secondary);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        margin: 0 auto;
+        transition: color var(--transition-fast), background-color var(--transition-fast);
+    }
+
+    .sidebar__expandToggle:hover {
+        color: var(--primary);
+        background: var(--surface-hover);
+    }
+
+    .sidebar--collapsed {
+        width: 4.5rem;
+    }
+
+    .sidebar--collapsed .sidebar__brandCopy,
+    .sidebar--collapsed .sidebar__navLabel,
+    .sidebar--collapsed .sidebar__link span,
+    .sidebar--collapsed .sidebar__buttonText,
+    .sidebar--collapsed .sidebar__logoutText,
+    .sidebar--collapsed .sidebar__info,
+    .sidebar--collapsed .sidebar__link--active::before,
+    .sidebar--collapsed .sidebar__tagline {
+        display: none;
+    }
+
+    .sidebar--collapsed .sidebar__header {
+        padding-left: 0;
+        padding-right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .sidebar--collapsed .sidebar__branding {
+        justify-content: center;
+        margin: 0;
+    }
+
+    .sidebar--collapsed .sidebar__nav {
+        align-items: center;
+    }
+
+    .sidebar--collapsed .sidebar__footer {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    /* Give each collapsed nav item a proportionally larger square so the active
+       highlight box is clearly visible around the icon. */
+    .sidebar--collapsed .sidebar__nav-item-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar--collapsed .sidebar__link,
+    .sidebar--collapsed .sidebar__nav-item-wrapper {
+        justify-content: center;
+    }
+
+    .sidebar--collapsed .sidebar__link {
+        justify-content: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        margin: 0 auto;
+        padding: 0;
+        border-radius: var(--radius-md);
+    }
+
+    /* Active highlight in the collapsed rail: a clearly visible filled box with a
+       subtle orange border (the horizontal wash reads uneven in a small square). */
+    .sidebar--collapsed .sidebar__link--active {
+        background-image: none;
+        background-color: rgba(249, 115, 22, 0.15);
+        border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .sidebar--collapsed .sidebar__button {
+        width: 2.75rem;
+        height: 2.75rem;
+        padding: 0;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-lg, 0.75rem);
+        box-shadow: var(--shadow-md, 0 4px 10px rgba(249, 115, 22, 0.35));
+    }
+
+    .sidebar--collapsed .sidebar__buttonIcon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .sidebar--collapsed .sidebar__logout {
+        width: 2.75rem;
+        height: 2.75rem;
+        padding: 0;
+        margin: 0.75rem auto 0;
+        justify-content: center;
+    }
+
+    .sidebar--collapsed .sidebar__profile {
+        justify-content: center;
+    }
 }

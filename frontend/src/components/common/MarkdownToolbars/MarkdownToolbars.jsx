@@ -1,5 +1,13 @@
-import { Bold, Italic, Code2, Link2 } from "lucide-react";
+import { useState } from "react";
+import { Bold, Italic, Code2, Link2, Eye, Pencil } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import styles from "./MarkdownToolbars.module.css";
+
+const previewComponents = {
+  a: ({ node: _n, ...props }) => (
+    <a target="_blank" rel="noopener noreferrer" {...props} />
+  ),
+};
 
 const MarkdownToolbar = ({
   textareaRef,
@@ -9,6 +17,8 @@ const MarkdownToolbar = ({
   hasError = false,
   children,
 }) => {
+  const [isPreview, setIsPreview] = useState(false);
+
   const applyFormat = (type) => {
     const textarea = textareaRef.current;
     if (!textarea || disabled || textarea.disabled) return;
@@ -68,6 +78,7 @@ const MarkdownToolbar = ({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => applyFormat("bold")}
             aria-label="Bold"
+            disabled={isPreview}
           >
             <Bold size={14} />
           </button>
@@ -77,6 +88,7 @@ const MarkdownToolbar = ({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => applyFormat("italic")}
             aria-label="Italic"
+            disabled={isPreview}
           >
             <Italic size={14} />
           </button>
@@ -86,6 +98,7 @@ const MarkdownToolbar = ({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => applyFormat("code")}
             aria-label="Code"
+            disabled={isPreview}
           >
             <Code2 size={14} />
           </button>
@@ -95,14 +108,37 @@ const MarkdownToolbar = ({
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => applyFormat("link")}
             aria-label="Link"
+            disabled={isPreview}
           >
             <Link2 size={14} />
           </button>
         </div>
-        <span className={styles.charCount}>{value.length} characters</span>
+        <div className={styles.rightGroup}>
+          <button
+            type="button"
+            className={`${styles.previewToggle}${isPreview ? ` ${styles.previewToggleActive}` : ""}`}
+            onClick={() => setIsPreview((p) => !p)}
+            aria-pressed={isPreview}
+            title={isPreview ? "Back to editing" : "Preview formatted text"}
+          >
+            {isPreview ? <Pencil size={13} /> : <Eye size={13} />}
+            <span>{isPreview ? "Write" : "Preview"}</span>
+          </button>
+          <span className={styles.charCount}>{value.length} characters</span>
+        </div>
       </div>
 
-      {children}
+      {isPreview ? (
+        <div className={styles.preview}>
+          {value.trim() ? (
+            <ReactMarkdown components={previewComponents}>{value}</ReactMarkdown>
+          ) : (
+            <span className={styles.previewEmpty}>Nothing to preview yet.</span>
+          )}
+        </div>
+      ) : (
+        children
+      )}
     </div>
   );
 };
