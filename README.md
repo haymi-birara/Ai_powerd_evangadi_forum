@@ -16,7 +16,6 @@ A full-stack community forum with AI-powered features built on React + Vite (fro
 - [Core Features in Detail](#core-features-in-detail)
 - [Security Configuration](#security-configuration)
 - [API Overview](#api-overview)
-- [Team Members](#team-members)
 
 ---
 
@@ -474,25 +473,3 @@ via `ON DELETE CASCADE`.
 A document already missing from disk is still removed from the database
 (the deletion is treated as successful), so the DB and filesystem can't
 drift apart.
-
----
-
-## Team Members
-
-Group 2 — 13 contributors. Roles reflect the area each person actually worked in (from git history), with product / project / DevOps responsibilities called out.
-
-| No. | Name | Email | Role |
-|-----|------|-------|------|
-| 1 | Anteneh Alemayehu | antenehmekuriaw@gmail.com | Product Manager · Full-stack |
-| 2 | Waganesh Wogaye | waganeshadmase@gmail.com | Project Manager · Full-stack |
-| 3 | Destaw Getaw | destage.29@gmail.com | Full-stack · DevOps |
-| 4 | Fiteh Tesfaye | fitehtesfaye@gmail.com | Full-stack |
-| 5 | Sofanit Dejene | sofanitdejene@gmail.com | Backend |
-| 6 | Solome Zewdu | solomezewdu125@gmail.com | Backend |
-| 7 | Amanawit Geremew | Amanawit.22@gmail.com | Backend |
-| 8 | Mesud Ali | mesud3818@gmail.com | Backend |
-| 9 | Melese Shukuro | Meleseshukuro@gmail.com | Frontend |
-| 10 | Haymanot Birara | haymibirara7@gmail.com | Frontend |
-| 11 | Abayneh Mekonnen | abayneh1999@gmail.com | Frontend |
-| 12 | Gedamu Mersha | gedamumersha27@gmail.com | Frontend |
-| 13 | Kena Tolcha | kenatolcha445@gmail.com | Frontend |

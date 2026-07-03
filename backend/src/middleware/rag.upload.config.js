@@ -3,7 +3,11 @@ import multer from "multer";
 import path from "path";
 import { BadRequestError } from "../utils/errors/index.js";
 
-const UPLOAD_DIR = "uploads";
+// Configurable so deployments can point uploads OUTSIDE the app directory —
+// platform deploys (e.g. Hostinger GitHub builds) may replace the app folder
+// on each deploy, which would wipe user-uploaded PDFs stored inside it.
+// e.g. UPLOAD_DIR=/home/<user>/forum-uploads
+const UPLOAD_DIR = process.env.UPLOAD_DIR || "uploads";
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 const storage = multer.diskStorage({

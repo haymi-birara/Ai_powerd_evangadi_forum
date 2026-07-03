@@ -226,7 +226,9 @@ In hPanel → your Node.js app → **Settings and redeploy** (or Deployments):
 | Node version | 20+ |
 
 Environment variables stay as configured (DB_*, JWT_SECRET, GEMINI/RESEND keys,
-FRONTEND_URL). After connecting, every push to `main` can be deployed with one
+FRONTEND_URL). Add **`UPLOAD_DIR=/home/<user>/forum-uploads`** so uploaded PDFs
+live outside the app folder — GitHub deploys replace the app directory, which
+would otherwise wipe them. After connecting, every push to `main` can be deployed with one
 click (or auto-deploy if enabled).
 
 > If the panel insists on `backend` as the root directory instead, keep startup
