@@ -36,15 +36,15 @@ A full-stack community forum with AI-powered features built on React + Vite (fro
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React, Vite, React Router v6, Axios, Framer Motion, lucide-react |
-| Backend | Node.js, Express 5, express-validator, helmet, express-rate-limit |
-| Database | MySQL 8, mysql2/promise |
-| Auth | JWT (jsonwebtoken), bcryptjs |
-| AI | Google Gemini — `gemini-embedding-001` (embeddings), `gemini-2.5-flash` / `gemini-2.5-flash-lite` (text) |
-| Email | Resend |
-| File Upload | Multer, pdf-parse (v2 `PDFParse` class API) |
+| Layer       | Technology                                                                                               |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| Frontend    | React, Vite, React Router v6, Axios, Framer Motion, lucide-react                                         |
+| Backend     | Node.js, Express 5, express-validator, helmet, express-rate-limit                                        |
+| Database    | MySQL 8, mysql2/promise                                                                                  |
+| Auth        | JWT (jsonwebtoken), bcryptjs                                                                             |
+| AI          | Google Gemini — `gemini-embedding-001` (embeddings), `gemini-2.5-flash` / `gemini-2.5-flash-lite` (text) |
+| Email       | Resend                                                                                                   |
+| File Upload | Multer, pdf-parse (v2 `PDFParse` class API)                                                              |
 
 ---
 
@@ -126,68 +126,68 @@ Copy `backend/.env.example` and fill in all **Required** values before starting 
 
 #### Server
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `PORT` | No | `3777` | Port the Express server listens on |
-| `NODE_ENV` | No | — | Set to `production` in deployed environments. Controls dev-only logging (e.g. token links are only printed to stdout when this is NOT `production`). |
+| Variable   | Required | Default | Description                                                                                                                                          |
+| ---------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`     | No       | `3777`  | Port the Express server listens on                                                                                                                   |
+| `NODE_ENV` | No       | —       | Set to `production` in deployed environments. Controls dev-only logging (e.g. token links are only printed to stdout when this is NOT `production`). |
 
 #### Database
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DB_HOST` | **Yes** | — | MySQL host (e.g. `127.0.0.1` or a cloud hostname) |
-| `DB_PORT` | No | `3306` | MySQL port |
-| `DB_USER` | **Yes** | — | MySQL username |
-| `DB_PASSWORD` | **Yes** | — | MySQL password |
-| `DB_NAME` | No | `evangadi_forum` | Database name |
+| Variable      | Required | Default          | Description                                       |
+| ------------- | -------- | ---------------- | ------------------------------------------------- |
+| `DB_HOST`     | **Yes**  | —                | MySQL host (e.g. `127.0.0.1` or a cloud hostname) |
+| `DB_PORT`     | No       | `3306`           | MySQL port                                        |
+| `DB_USER`     | **Yes**  | —                | MySQL username                                    |
+| `DB_PASSWORD` | **Yes**  | —                | MySQL password                                    |
+| `DB_NAME`     | No       | `evangadi_forum` | Database name                                     |
 
 #### Authentication
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `JWT_SECRET` | **Yes** | — | Secret used to sign and verify all JWTs. Use a long random string (32+ chars). Never commit this value. |
-| `JWT_EXPIRES_IN` | No | `1d` | How long login tokens remain valid (e.g. `1d`, `7d`, `2h`). |
-| `EMAIL_CONFIRM_EXPIRES_IN` | No | `24h` | How long email confirmation links remain valid. |
-| `PASSWORD_RESET_EXPIRES_IN` | No | `15m` | How long password reset links remain valid. Shorter is more secure. |
+| Variable                    | Required | Default | Description                                                                                             |
+| --------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `JWT_SECRET`                | **Yes**  | —       | Secret used to sign and verify all JWTs. Use a long random string (32+ chars). Never commit this value. |
+| `JWT_EXPIRES_IN`            | No       | `1d`    | How long login tokens remain valid (e.g. `1d`, `7d`, `2h`).                                             |
+| `EMAIL_CONFIRM_EXPIRES_IN`  | No       | `24h`   | How long email confirmation links remain valid.                                                         |
+| `PASSWORD_RESET_EXPIRES_IN` | No       | `15m`   | How long password reset links remain valid. Shorter is more secure.                                     |
 
 #### Email (Resend)
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `RESEND_API_KEY` | **Yes** (for email) | — | API key from [resend.com](https://resend.com). Without this, registration and password reset will still work but no emails will be delivered. |
-| `EMAIL_FROM` | No | — | Sender address shown in emails, e.g. `Evangadi Forum <noreply@yourdomain.com>`. Must be a verified domain in Resend for production delivery. |
-| `FRONTEND_URL` | No | `http://localhost:5001` | Base URL prepended to email confirmation and password reset links. **Must be set in production** so links point to the live domain. |
+| Variable         | Required            | Default                 | Description                                                                                                                                   |
+| ---------------- | ------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY` | **Yes** (for email) | —                       | API key from [resend.com](https://resend.com). Without this, registration and password reset will still work but no emails will be delivered. |
+| `EMAIL_FROM`     | No                  | —                       | Sender address shown in emails, e.g. `Evangadi Forum <noreply@yourdomain.com>`. Must be a verified domain in Resend for production delivery.  |
+| `FRONTEND_URL`   | No                  | `http://localhost:5001` | Base URL prepended to email confirmation and password reset links. **Must be set in production** so links point to the live domain.           |
 
 > **Resend sandbox mode:** In development, Resend restricts delivery to your own verified email address. Set `NODE_ENV` to anything other than `production` and the server will print confirmation/reset links to stdout so you can test without real email delivery.
 
 #### AI (Gemini)
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `GEMINI_API_KEY` | **Yes** (for AI features) | — | API key from [Google AI Studio](https://aistudio.google.com). Without this key, semantic search falls back to keyword search, moderation falls back to a deterministic keyword check, and other AI features return graceful empty responses. |
-| `GEMINI_EMBEDDING_MODEL` | No | `gemini-embedding-001` | Embedding model. Both **question** and **RAG document/query** embeddings request `outputDimensionality: 768` (RAG is configurable via `RAG_EMBEDDING_DIM`). Query and stored vectors must share the same dimensionality for cosine similarity to be valid. |
-| `GEMINI_TEXT_MODEL` | No | `gemini-2.5-flash-lite` | Text generation model used for AI answers, moderation, draft coach, answer-fit, and RAG answers. |
+| Variable                 | Required                  | Default                 | Description                                                                                                                                                                                                                                                |
+| ------------------------ | ------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GEMINI_API_KEY`         | **Yes** (for AI features) | —                       | API key from [Google AI Studio](https://aistudio.google.com). Without this key, semantic search falls back to keyword search, moderation falls back to a deterministic keyword check, and other AI features return graceful empty responses.               |
+| `GEMINI_EMBEDDING_MODEL` | No                        | `gemini-embedding-001`  | Embedding model. Both **question** and **RAG document/query** embeddings request `outputDimensionality: 768` (RAG is configurable via `RAG_EMBEDDING_DIM`). Query and stored vectors must share the same dimensionality for cosine similarity to be valid. |
+| `GEMINI_TEXT_MODEL`      | No                        | `gemini-2.5-flash-lite` | Text generation model used for AI answers, moderation, draft coach, answer-fit, and RAG answers.                                                                                                                                                           |
 
 #### RAG Pipeline (Knowledge Base)
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `RAG_UPLOAD_DIR` | No | `uploads/rag` | Local filesystem path where uploaded PDFs are stored. Create this directory before uploading. |
-| `RAG_MAX_UPLOAD_MB` | No | `5` | Maximum PDF file size in megabytes. |
-| `RAG_CHUNK_CHARS` | No | `900` | Character length of each text chunk when splitting a document. |
-| `RAG_CHUNK_OVERLAP` | No | `120` | Overlapping characters between adjacent chunks for context continuity. |
-| `RAG_MAX_CHUNKS_PER_DOC` | No | `1000` | Hard cap on chunks per document to prevent runaway processing. |
-| `RAG_MAX_PDFS_PER_USER` | No | `20` | Maximum number of documents a single user can upload. |
-| `RAG_MIN_TEXT_CHARS` | No | `50` | Minimum extracted text length — PDFs below this threshold are rejected as unreadable. |
-| `RAG_SEARCH_THRESHOLD` | No | `0.55` | Min cosine score for a chunk to be returned. Raised from 0.45 after moving to 768-dim embeddings, whose irrelevant cosine floor sits ~0.5. |
-| `RAG_SEARCH_K` | No | `10` | Number of top chunks returned per RAG search. |
-| `RAG_EMBEDDING_DIM` | No | `768` | Dimensionality for RAG document **and** query embeddings (must be equal). 768 matches question embeddings; lower than the model's 3072 default for ~4× less storage/compute. **If you change this, re-run `scripts/reembed-rag-chunks.js`** so existing chunks match. |
+| Variable                 | Required | Default       | Description                                                                                                                                                                                                                                                           |
+| ------------------------ | -------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RAG_UPLOAD_DIR`         | No       | `uploads/rag` | Local filesystem path where uploaded PDFs are stored. Create this directory before uploading.                                                                                                                                                                         |
+| `RAG_MAX_UPLOAD_MB`      | No       | `5`           | Maximum PDF file size in megabytes.                                                                                                                                                                                                                                   |
+| `RAG_CHUNK_CHARS`        | No       | `900`         | Character length of each text chunk when splitting a document.                                                                                                                                                                                                        |
+| `RAG_CHUNK_OVERLAP`      | No       | `120`         | Overlapping characters between adjacent chunks for context continuity.                                                                                                                                                                                                |
+| `RAG_MAX_CHUNKS_PER_DOC` | No       | `1000`        | Hard cap on chunks per document to prevent runaway processing.                                                                                                                                                                                                        |
+| `RAG_MAX_PDFS_PER_USER`  | No       | `20`          | Maximum number of documents a single user can upload.                                                                                                                                                                                                                 |
+| `RAG_MIN_TEXT_CHARS`     | No       | `50`          | Minimum extracted text length — PDFs below this threshold are rejected as unreadable.                                                                                                                                                                                 |
+| `RAG_SEARCH_THRESHOLD`   | No       | `0.55`        | Min cosine score for a chunk to be returned. Raised from 0.45 after moving to 768-dim embeddings, whose irrelevant cosine floor sits ~0.5.                                                                                                                            |
+| `RAG_SEARCH_K`           | No       | `10`          | Number of top chunks returned per RAG search.                                                                                                                                                                                                                         |
+| `RAG_EMBEDDING_DIM`      | No       | `768`         | Dimensionality for RAG document **and** query embeddings (must be equal). 768 matches question embeddings; lower than the model's 3072 default for ~4× less storage/compute. **If you change this, re-run `scripts/reembed-rag-chunks.js`** so existing chunks match. |
 
 ### Frontend — `frontend/.env.local`
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `VITE_API_BASE_URL` | No | `http://localhost:3777` | Backend API base URL. Change this if the backend runs on a different host or port. |
+| Variable            | Required | Default                 | Description                                                                        |
+| ------------------- | -------- | ----------------------- | ---------------------------------------------------------------------------------- |
+| `VITE_API_BASE_URL` | No       | `http://localhost:3777` | Backend API base URL. Change this if the backend runs on a different host or port. |
 
 ---
 
@@ -202,7 +202,7 @@ Copy `backend/.env.example` and fill in all **Required** values before starting 
 ### 1. Clone
 
 ```bash
-git clone https://github.com/Kingspark/ai-powered-disc-forum.git
+git clone https://github.com/haymi-birara/Ai_powerd_evangadi_forum.git
 cd ai-powered-forum-project
 ```
 
@@ -248,19 +248,19 @@ Frontend runs on `http://localhost:5001` by default.
 
 ### Backend
 
-| Command | Description |
-|---------|-------------|
+| Command       | Description                     |
+| ------------- | ------------------------------- |
 | `npm run dev` | Start with nodemon (hot reload) |
-| `npm start` | Start with Node (production) |
+| `npm start`   | Start with Node (production)    |
 
 ### Frontend
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Vite dev server with HMR |
-| `npm run build` | Production build → `dist/` |
+| Command           | Description                      |
+| ----------------- | -------------------------------- |
+| `npm run dev`     | Vite dev server with HMR         |
+| `npm run build`   | Production build → `dist/`       |
 | `npm run preview` | Preview production build locally |
-| `npm run lint` | Run ESLint |
+| `npm run lint`    | Run ESLint                       |
 
 ### Maintenance
 
@@ -283,7 +283,7 @@ The dashboard search bar supports two modes that share one input:
 - **Keyword search** filters the feed by literal text (`GET /api/questions?search=…`).
 - **AI Search** (the ✦ Sparkles button) embeds the query and ranks questions by cosine similarity against stored question vectors, returning matches **plus** a written AI answer grounded in the forum (`GET /api/questions/search`). Each question page also lists similar questions automatically.
 
-> **AI Search vs. AI Answer:** *AI Search* (the search bar) finds existing forum questions by meaning. *AI Answer* (offered on the rejection banner of an off-topic post) calls Gemini unrestricted to still give the user a useful response on a topic the forum doesn't cover. They are intentionally separate features.
+> **AI Search vs. AI Answer:** _AI Search_ (the search bar) finds existing forum questions by meaning. _AI Answer_ (offered on the rejection banner of an off-topic post) calls Gemini unrestricted to still give the user a useful response on a topic the forum doesn't cover. They are intentionally separate features.
 
 ### AI Draft Coach & Answer-Fit
 
@@ -297,7 +297,7 @@ Both retry on transient Gemini `503`/`429` and fail gracefully when the AI is un
 Every question and answer is screened **before** it is published:
 
 - **Allow** — on-topic / acceptable content is posted normally.
-- **Reject (off-topic)** — non-technical posts are blocked with a reason + guidance, and the user is offered an unrestricted *AI Answer* on the topic. No DB record is created.
+- **Reject (off-topic)** — non-technical posts are blocked with a reason + guidance, and the user is offered an unrestricted _AI Answer_ on the topic. No DB record is created.
 - **Flag (spam / harassment)** — the post is saved but hidden from public feeds and sent to the admin moderation queue (`moderation_flags`); the author sees an "under review" notice.
 - **Keyword fallback** — when Gemini is rate-limited or down, a deterministic keyword classifier still catches obvious off-topic / spam / harassment so moderation never silently fails open.
 - **User moderation status** — repeat offenders can be `limited`, `blocked`, or `removed` (`user_moderation_status`); status is checked before every submission.
@@ -358,14 +358,14 @@ The API only accepts requests from the origin defined in `FRONTEND_URL` (default
 
 Per-route limits are applied to all auth endpoints to prevent brute-force and email spam attacks:
 
-| Endpoint | Limit | Window |
-|----------|-------|--------|
-| `POST /api/auth/login` | 10 requests | 15 minutes |
-| `POST /api/auth/register` | 5 requests | 1 hour |
-| `POST /api/auth/forgot-password` | 5 requests | 1 hour |
-| `POST /api/auth/confirm-email` | 10 requests | 15 minutes |
-| `POST /api/auth/reset-password` | 10 requests | 15 minutes |
-| All other `/api/*` routes | 200 requests | 15 minutes |
+| Endpoint                         | Limit        | Window     |
+| -------------------------------- | ------------ | ---------- |
+| `POST /api/auth/login`           | 10 requests  | 15 minutes |
+| `POST /api/auth/register`        | 5 requests   | 1 hour     |
+| `POST /api/auth/forgot-password` | 5 requests   | 1 hour     |
+| `POST /api/auth/confirm-email`   | 10 requests  | 15 minutes |
+| `POST /api/auth/reset-password`  | 10 requests  | 15 minutes |
+| All other `/api/*` routes        | 200 requests | 15 minutes |
 
 Limits are per-IP. In production behind a reverse proxy (Nginx, Render, Railway), set `app.set('trust proxy', 1)` so the real client IP is used instead of the proxy IP.
 
@@ -395,63 +395,63 @@ All routes are prefixed with `/api`. Protected routes require `Authorization: Be
 
 **Auth**
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `POST` | `/auth/register` | Public | Create account + send confirmation email |
-| `POST` | `/auth/login` | Public | Authenticate + receive JWT |
-| `POST` | `/auth/confirm-email` | Public | Verify email from token |
-| `POST` | `/auth/forgot-password` | Public | Request password reset email |
-| `POST` | `/auth/reset-password` | Public | Set new password from token |
+| Method | Path                    | Auth   | Description                              |
+| ------ | ----------------------- | ------ | ---------------------------------------- |
+| `POST` | `/auth/register`        | Public | Create account + send confirmation email |
+| `POST` | `/auth/login`           | Public | Authenticate + receive JWT               |
+| `POST` | `/auth/confirm-email`   | Public | Verify email from token                  |
+| `POST` | `/auth/forgot-password` | Public | Request password reset email             |
+| `POST` | `/auth/reset-password`  | Public | Set new password from token              |
 
 **Questions & Answers**
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/questions` | Protected | List questions (keyword + mine filter; pending-flagged hidden) |
-| `POST` | `/questions` | Protected | Create question — moderated; duplicate/similar checks; async embedding |
-| `GET` | `/questions/search` | Protected | AI semantic search + grounded AI answer |
-| `POST` | `/questions/draft-coach` | Protected | AI feedback on a question draft |
-| `POST` | `/questions/ai-search` | Protected | Unrestricted AI answer for a rejected off-topic question |
-| `GET` | `/questions/:hash` | Protected | Get question + all answers |
-| `GET` | `/questions/:hash/similar` | Protected | Related questions by vector similarity |
-| `POST` | `/questions/:hash/answer-fit` | Protected | Rate a draft answer's relevance (Strong / Medium / Weak / Poor) |
-| `POST` | `/answers` | Protected | Post an answer — moderated |
-| `POST` | `/answers/:id/vote` | Protected | Upvote an answer |
-| `DELETE` | `/answers/:id/vote` | Protected | Remove an upvote |
+| Method   | Path                          | Auth      | Description                                                            |
+| -------- | ----------------------------- | --------- | ---------------------------------------------------------------------- |
+| `GET`    | `/questions`                  | Protected | List questions (keyword + mine filter; pending-flagged hidden)         |
+| `POST`   | `/questions`                  | Protected | Create question — moderated; duplicate/similar checks; async embedding |
+| `GET`    | `/questions/search`           | Protected | AI semantic search + grounded AI answer                                |
+| `POST`   | `/questions/draft-coach`      | Protected | AI feedback on a question draft                                        |
+| `POST`   | `/questions/ai-search`        | Protected | Unrestricted AI answer for a rejected off-topic question               |
+| `GET`    | `/questions/:hash`            | Protected | Get question + all answers                                             |
+| `GET`    | `/questions/:hash/similar`    | Protected | Related questions by vector similarity                                 |
+| `POST`   | `/questions/:hash/answer-fit` | Protected | Rate a draft answer's relevance (Strong / Medium / Weak / Poor)        |
+| `POST`   | `/answers`                    | Protected | Post an answer — moderated                                             |
+| `POST`   | `/answers/:id/vote`           | Protected | Upvote an answer                                                       |
+| `DELETE` | `/answers/:id/vote`           | Protected | Remove an upvote                                                       |
 
 **Community: Leaderboard, Users, Releases**
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/leaderboard/...` | Protected | Monthly + all-time top contributors |
-| `GET` | `/users/:id/profile` | Protected | Public user profile (trust score, badges, stats) |
-| `GET` | `/releases/unseen` | Protected | Releases the user hasn't seen yet |
-| `POST` | `/releases/seen` | Protected | Mark all published releases as seen |
-| `GET` | `/releases` | Protected | Recent published releases |
+| Method | Path                 | Auth      | Description                                      |
+| ------ | -------------------- | --------- | ------------------------------------------------ |
+| `GET`  | `/leaderboard/...`   | Protected | Monthly + all-time top contributors              |
+| `GET`  | `/users/:id/profile` | Protected | Public user profile (trust score, badges, stats) |
+| `GET`  | `/releases/unseen`   | Protected | Releases the user hasn't seen yet                |
+| `POST` | `/releases/seen`     | Protected | Mark all published releases as seen              |
+| `GET`  | `/releases`          | Protected | Recent published releases                        |
 
 **RAG Knowledge Base**
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/rag/documents` | Protected | List the user's documents |
-| `POST` | `/rag/documents` | Protected | Upload a PDF → chunk + embed |
-| `GET` | `/rag/documents/:id/file` | Protected | Stream the PDF for inline preview |
-| `GET` | `/rag/documents/:id/search` | Protected | Semantic search within the document |
-| `POST` | `/rag/documents/:id/query` | Protected | Ask — answer with citations + source references |
-| `DELETE` | `/rag/documents/:documentId` | Protected | Delete a document (PDF + chunks + vectors) |
+| Method   | Path                         | Auth      | Description                                     |
+| -------- | ---------------------------- | --------- | ----------------------------------------------- |
+| `GET`    | `/rag/documents`             | Protected | List the user's documents                       |
+| `POST`   | `/rag/documents`             | Protected | Upload a PDF → chunk + embed                    |
+| `GET`    | `/rag/documents/:id/file`    | Protected | Stream the PDF for inline preview               |
+| `GET`    | `/rag/documents/:id/search`  | Protected | Semantic search within the document             |
+| `POST`   | `/rag/documents/:id/query`   | Protected | Ask — answer with citations + source references |
+| `DELETE` | `/rag/documents/:documentId` | Protected | Delete a document (PDF + chunks + vectors)      |
 
 **Admin** (require `admin` role)
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/admin/queue` | Admin | Pending moderation queue |
-| `POST` | `/admin/queue/:flagId/approve` | Admin | Restore an incorrectly flagged post (recomputes the author's standing) |
-| `POST` | `/admin/queue/:flagId/remove` | Admin | Remove a post + apply escalation |
-| `POST` | `/admin/queue/:flagId/escalate` | Admin | Manually escalate the author |
-| `GET` | `/admin/flags` | Admin | Flag activity history (filterable) |
-| `GET` | `/admin/users` | Admin | List users |
-| `PATCH` | `/admin/users/:userId/role` | Admin | Change a user's role |
-| `DELETE` | `/admin/users/:userId` | Admin | Remove (soft-delete) a user |
+| Method   | Path                            | Auth  | Description                                                            |
+| -------- | ------------------------------- | ----- | ---------------------------------------------------------------------- |
+| `GET`    | `/admin/queue`                  | Admin | Pending moderation queue                                               |
+| `POST`   | `/admin/queue/:flagId/approve`  | Admin | Restore an incorrectly flagged post (recomputes the author's standing) |
+| `POST`   | `/admin/queue/:flagId/remove`   | Admin | Remove a post + apply escalation                                       |
+| `POST`   | `/admin/queue/:flagId/escalate` | Admin | Manually escalate the author                                           |
+| `GET`    | `/admin/flags`                  | Admin | Flag activity history (filterable)                                     |
+| `GET`    | `/admin/users`                  | Admin | List users                                                             |
+| `PATCH`  | `/admin/users/:userId/role`     | Admin | Change a user's role                                                   |
+| `DELETE` | `/admin/users/:userId`          | Admin | Remove (soft-delete) a user                                            |
 
 | `GET` | `/health` | Public | Server health check |
 
